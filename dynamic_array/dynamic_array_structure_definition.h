@@ -1,0 +1,8 @@
+#ifndef DYNAMIC_ARRAY_DYNAMIC_ARRAY_STRUCTURE_DEFINITION_H
+#define DYNAMIC_ARRAY_DYNAMIC_ARRAY_STRUCTURE_DEFINITION_H
+struct DynamicArray {
+    void *buffer;
+    int count;
+    int size_of_element;
+};
+#endif //DYNAMIC_ARRAY_DYNAMIC_ARRAY_STRUCTURE_DEFINITION_H
