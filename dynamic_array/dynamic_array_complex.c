@@ -2,24 +2,21 @@
 #include "dynamic_array.h"
 #include "complex_structure_definition.h"
 #include <stdlib.h>
+#include <stdio.h>
 struct DynamicArray* createDynamicArray_complex( int count ) {
-    struct DynamicArray* arr = createDynamicArray( count, sizeof(int)/sizeof(char) );
+    struct DynamicArray* arr = createDynamicArray( count, sizeof(struct complex)/sizeof(char) );
     if ( !arr ) {
         return NULL;
     }
     return arr;
 }
 
-void setElement_complex(struct DynamicArray* arr, int index, int newValue) {
+void setElement_complex(struct DynamicArray* arr, int index, struct complex newValue) {
     setElement( arr, index, (void*) &newValue );
 }
 
-int getElement_complex(struct DynamicArray* arr, int index) {
-    int* p = (int*) getElement(arr, index);
-    if (!p) {
-        return 0;
-    }
-    return *p;
+struct complex getElement_complex(struct DynamicArray* arr, int index) {
+    return *((struct complex*) getElement(arr, index));
 }
 
 void destroyDynamicArray_complex(struct DynamicArray* a) {

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dynamic_array_structure_definition.h"
-#include "dynamic_array_int.h"
 #include "complex_structure_definition.h"
+#include "dynamic_array_int.h"
 #include "dynamic_array_complex.h"
 
 typedef struct DynamicArray array;
@@ -25,6 +25,42 @@ void outputWelcomeText() {
     printf("11. Destroy B\n");
     printf("12. Destroy C\n");
     printf("13. Exit\n");
+}
+
+void outputElements(array* arr, const char* arr_type) {
+    if(!arr) {
+        printf("ERROR 1\n");
+        return;
+    }
+    if(!arr->buffer) {
+        printf("ERROR 2\n");
+        return;
+    }
+    int i;
+    int val_int;
+    complex val_complex;
+    switch (*arr_type) {
+        case 'i':
+            for (i = 0; i < arr->count; i++) {
+                val_int = getElement_int(arr, i);
+                printf("%d ", val_int);
+            }
+            break;
+        case 'c':
+            for (i = 0; i < arr->count; i++) {
+                val_complex = getElement_complex(arr, i);
+                printf("%lf", val_complex.re);
+                if (val_complex.im < 0) {
+                    printf("-%lfj ", -val_complex.im);
+                } else {
+                    printf("+%lfj ", val_complex.im);
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    printf("\n");
 }
 
 void inputElements(char name, array** parr, char* arr_type) {
@@ -77,38 +113,7 @@ void inputElements(char name, array** parr, char* arr_type) {
     }
 }
 
-void outputElements(array* arr, const char* arr_type) {
-    if(!arr) {
-        printf("ERROR 1\n");
-        return;
-    }
-    if(!arr->buffer) {
-        printf("ERROR 2\n");
-        return;
-    }
-    int i;
-    int val_int;
-    complex val_complex;
-    switch (*arr_type) {
-        case 'i':
-            for (i = 0; i < arr->count; i++) {
-                val_int = getElement_int(arr, i);
-                printf("%d ", val_int);
-            }
-            break;
-        case 'c':
-            for (i = 0; i < arr->count; i++) {
-                val_complex = getElement_complex(arr, i);
-                printf("%lf+j%lf ", val_complex.re, val_complex.im);
-            }
-            break;
-        default:
-            break;
-    }
-    printf("\n");
-}
-
-void concatArrays(array* a, array* b, array* c, const char* a_type, const char* b_type, char* c_type) {
+void concatArrays(array* a, array* b, array** c, const char* a_type, const char* b_type, char* c_type) {
     if (!a || !b) {
         printf("ERROR 4\n");
         return;
@@ -119,20 +124,20 @@ void concatArrays(array* a, array* b, array* c, const char* a_type, const char* 
     }
     switch(*c_type) {
         case 'i':
-            destroyDynamicArray_int(c);
+            destroyDynamicArray_int(*c);
             break;
         case 'c':
-            destroyDynamicArray_complex(c);
+            destroyDynamicArray_complex(*c);
         default:
             break;
     }
     *c_type = *a_type;
     switch(*c_type) {
         case 'i':
-            c = concat_int(a, b);
+            *c = concat_int(a, b);
             break;
         case 'c':
-            c = concat_complex(a, b);
+            *c = concat_complex(a, b);
         default:
             break;
     }
@@ -159,6 +164,7 @@ void extendArrayWithArray(array* base, const char* base_type, array* added, cons
         return;
     }
     int count = base->count + added->count;
+    int old_count = base->count;
     switch (*base_type) {
         case 'i':
             changeDynamicArrayCount_int(base, count);
@@ -171,7 +177,7 @@ void extendArrayWithArray(array* base, const char* base_type, array* added, cons
     for(i = 0; i < added->count; i++) {
         switch (*base_type) {
             case 'i':
-                setElement_int(base, base->count + i, getElement_int(added, i));
+                setElement_int(base, old_count + i, getElement_int(added, i));
                 break;
             case 'c':
                 setElement_complex(base, base->count + i, getElement_complex(added, i));
@@ -204,7 +210,7 @@ int main() {
     int num = 0;
     outputWelcomeText();
     while(num != 10){
-        printf("What do you want?\n");
+        printf("\nWhat do you want?\n");
         printf("%s", welcomeString);
         scanf("%d", &num);
         switch (num) {
@@ -223,14 +229,14 @@ int main() {
                 printf("Done\n");
                 break;
             case 4:
-                extendArrayWithArray(a, &a_type, b, &b_type);
+                extendArrayWithArray(b, &b_type, a, &a_type);
                 printf("Done\n");
                 break;
             case 5:
                 outputElements(b, &b_type);
                 break;
             case 6:
-                concatArrays(a, b, c, &a_type, &b_type, &c_type);
+                concatArrays(a, b, &c, &a_type, &b_type, &c_type);
                 printf("Done\n");
                 break;
             case 7:
@@ -240,7 +246,7 @@ int main() {
                 break;
             case 8:
                 if (c_type == 'c') {
-                    where_complex(c, &remove_positive_im);
+                    c = where_complex(c, &remove_positive_im);
                 }
                 break;
             case 9:

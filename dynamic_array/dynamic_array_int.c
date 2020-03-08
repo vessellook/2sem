@@ -1,6 +1,7 @@
 #include "dynamic_array_structure_definition.h"
 #include "dynamic_array.h"
-#include <stdlib.h>
+#include <stdio.h>
+#
 struct DynamicArray* createDynamicArray_int( int count ) {
     struct DynamicArray* arr = createDynamicArray( count, sizeof(int)/sizeof(char) );
     if ( !arr ) {

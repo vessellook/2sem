@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "dynamic_array_structure_definition.h"
+#include "complex_structure_definition.h"
 
 
 struct DynamicArray* createDynamicArray(int count, int size_of_element) {
@@ -72,11 +73,12 @@ struct DynamicArray* where(struct DynamicArray* arr, int (*func)(void*)) {
         }
     }
     struct DynamicArray* newArr = createDynamicArray(count, arr->size_of_element);
+    count = 0;
     if(newArr) {
         for(int i = 0; i < arr->count; i++) {
             void* ptr = (void*) ((char*) arr->buffer + i * arr->size_of_element);
             if (func(ptr) == 1) {
-                setElement(newArr, count, getElement(newArr, i));
+                setElement(newArr, count, getElement(arr, i));
                 count++;
             }
         }
