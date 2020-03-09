@@ -1,5 +1,5 @@
-#include "dynamic_array_structure_definition.h"
 #include "dynamic_array.h"
+#include "dynamic_array_int.h"
 #include <stdio.h>
 #
 struct DynamicArray* createDynamicArray_int( int count ) {

@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "dynamic_array_structure_definition.h"
-#include "complex_structure_definition.h"
 #include "dynamic_array_int.h"
 #include "dynamic_array_complex.h"
 
@@ -192,7 +190,7 @@ void* add_2(void* element) {
     return i;
 }
 
-int remove_positive_im(void* element) {
+int remove_positive(void* element) {
     if (((complex*) element)->im > 0) {
         return 0;
     }
@@ -246,7 +244,7 @@ int main() {
                 break;
             case 8:
                 if (c_type == 'c') {
-                    c = where_complex(c, &remove_positive_im);
+                    c = where_complex(c, &remove_positive);
                 }
                 break;
             case 9:

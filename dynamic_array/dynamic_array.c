@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "dynamic_array_structure_definition.h"
-#include "complex_structure_definition.h"
+#include "dynamic_array.h"
 
 
 struct DynamicArray* createDynamicArray(int count, int size_of_element) {

@@ -1,6 +1,5 @@
-#include "dynamic_array_structure_definition.h"
 #include "dynamic_array.h"
-#include "complex_structure_definition.h"
+#include "dynamic_array_complex.h"
 #include <stdlib.h>
 #include <stdio.h>
 struct DynamicArray* createDynamicArray_complex( int count ) {
