@@ -48,7 +48,7 @@ struct DynamicArray* map(struct DynamicArray* arr, void* (*func)(void*), int siz
         int i;
         for (i = 0; i < arr->count; i++) {
             void* res = func((void*)((char*) arr->buffer + i * arr->size_of_element));
-            memcpy((void*) ((char*) arr->buffer + i * arr->size_of_element), res, arr->size_of_element);
+            memcpy((void*) ((char*) newArr->buffer + i * newArr->size_of_element), res, newArr->size_of_element);
             free(res);
         }
     }

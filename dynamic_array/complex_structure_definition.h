@@ -1,4 +1,4 @@
 #ifndef DYNAMIC_ARRAY_COMPLEX_STRUCTURE_DEFINITION_H
 #define DYNAMIC_ARRAY_COMPLEX_STRUCTURE_DEFINITION_H
-struct complex {double re; double im; };
+struct my_complex {double re; double im; };
 #endif //DYNAMIC_ARRAY_COMPLEX_STRUCTURE_DEFINITION_H

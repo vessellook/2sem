@@ -4,7 +4,7 @@
 #include "dynamic_array_complex.h"
 
 typedef struct DynamicArray array;
-typedef struct complex complex;
+typedef struct my_complex my_complex;
 const char* welcomeString = ">>>";
 
 void outputWelcomeText() {
@@ -23,6 +23,7 @@ void outputWelcomeText() {
     printf("11. Destroy B\n");
     printf("12. Destroy C\n");
     printf("13. Exit\n");
+    printf("14. Square each element of A\n");
 }
 
 void outputElements(array* arr, const char* arr_type) {
@@ -36,7 +37,7 @@ void outputElements(array* arr, const char* arr_type) {
     }
     int i;
     int val_int;
-    complex val_complex;
+    my_complex val_complex;
     switch (*arr_type) {
         case 'i':
             for (i = 0; i < arr->count; i++) {
@@ -97,7 +98,7 @@ void inputElements(char name, array** parr, char* arr_type) {
             *arr_type = 'c';
             printf("Input elements of array %c as pairs \'re im\' (size of array %c = %d)\n", name, name, count);
             printf("%s", welcomeString);
-            complex val_complex;
+            my_complex val_complex;
             double re, im;
             for (i = 0; i < count; i++) {
                 scanf("%lf %lf", &re, &im);
@@ -190,8 +191,27 @@ void* add_2(void* element) {
     return i;
 }
 
+
+void* square_int(void* element) {
+    int* i = malloc(sizeof(int));
+    int value = *((int*) element);
+    *i = value * value;
+    return i;
+}
+
+
+void* square_complex(void* element) {
+    my_complex* i = malloc(sizeof(my_complex));
+    double im = ((my_complex*) element)->im;
+    double re = ((my_complex*) element)->re;
+    i->re = re*re - im*im;
+    i->im = 2*re*im;
+    return i;
+}
+
+
 int remove_positive(void* element) {
-    if (((complex*) element)->im > 0) {
+    if (((my_complex*) element)->im > 0) {
         return 0;
     }
     return 1;
@@ -204,6 +224,7 @@ int main() {
     array* b = NULL;
     char b_type = 'n';
     array* c = NULL;
+    array* helper = NULL;
     char c_type = 'n';
     int num = 0;
     outputWelcomeText();
@@ -239,12 +260,16 @@ int main() {
                 break;
             case 7:
                 if (c_type == 'i') {
-                    map_int(c, &add_2);
+                    helper = c;
+                    c = map_int(c, &add_2);
+                    destroyDynamicArray_int(helper);
                 }
                 break;
             case 8:
                 if (c_type == 'c') {
+                    helper = c;
                     c = where_complex(c, &remove_positive);
+                    destroyDynamicArray_int(helper);
                 }
                 break;
             case 9:
@@ -267,7 +292,18 @@ int main() {
                 destroyArray(b, &b_type);
                 destroyArray(c, &c_type);
                 printf("Exit");
+                printf("Exit");
                 return 0;
+            case 14:
+                if (a_type == 'i') {
+                    helper = a;
+                    a = map_int(a, &square_int);
+                    destroyDynamicArray_int(helper);
+                } else if (a_type == 'c') {
+                    helper = a;
+                    a = map_complex(a, &square_complex);
+                    destroyDynamicArray_complex(helper);
+                }
             default:
                 break;
         }

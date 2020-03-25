@@ -5,7 +5,7 @@
 typedef struct DynamicArray array;
 
 void* add_2(void* element) {
-    int* i = malloc(sizeof(int));
+    int* i = (int*) malloc(sizeof(int));
     *i = *((int*) element) + 2;
     return (void*) i;
 }
@@ -85,21 +85,24 @@ int main() {
     array* e = map_int(a, add_2);
     if(a->count != e->count) {
         printf("TEST FAILED: different counts of array before and after 'map_int()'");
-        scanf("%c", &chr);return 0;
+        scanf("%c", &chr);
+        return 0;
     }
     if(a->size_of_element != e->size_of_element) {
         printf("TEST FAILED: different size of elements in array before and after 'map_int()'");
-        scanf("%c", &chr);return 0;
+        scanf("%c", &chr);
+        return 0;
     }
     int i;
     for(i = 0; i < 4; i++) {
-        printf("%d %d\n", getElement_int(a, i), getElement_int(e, i));
         if (getElement_int(a, i) + 2 != getElement_int(e, i)) {
             printf("TEST FAILED: 'map_int()' return wrong value");
-            scanf("%c", &chr);return 0;
+            scanf("%c", &chr);
+            return 0;
         }
     }
     printf("TEST PASSED: 'map_int()' return array with right changes\n");
+    destroyDynamicArray_int(e);
     int count = 0;
     for(i = 0; i < a->count; i++) {
         if (getElement_int(a, i) <= 0) {
@@ -109,11 +112,12 @@ int main() {
     e = where_int(a, remove_positive);
     if(count != e->count) {
         printf("TEST FAILED: different count of elements in array after 'where_int()' and count of negative (and 0) elements in array before 'where_int()'");
-        scanf("%c", &chr);return 0;
+        scanf("%c", &chr);
+        return 0;
     }
     for(i = a->count - 1; i >= 0; i--) {
         if (getElement_int(a, i) <= 0) {
-            if (getElement_int(a, i) != getElement_int(e, count)) {
+            if (getElement_int(a, i) != getElement_int(e, count-1)) {
                 printf("TEST FAILED: 'where_int()' return wrong value");
                 scanf("%c", &chr);return 0;
             }
