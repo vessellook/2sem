@@ -16,6 +16,26 @@ public:
     virtual void Append(T item) = 0;
     virtual void Prepend(T item) = 0;
     virtual void InsertAt(T item, int index) = 0;
+    T operator[](int index);
 };
+
+template <class T>
+bool operator==(Sequence<T> & sequence1, Sequence<T> & sequence2) {
+    int len = sequence1.GetLength();
+    if (sequence2.GetLength() != len) {
+        return false;
+    }
+    for(int i = 0; i < len; i++) {
+        if (sequence1.Get(i) != sequence2.Get(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <class T>
+T Sequence<T>::operator[](int index) {
+    return this->Get(index);
+}
 
 #endif //SEQUENCE_SEQUENCE_H

@@ -15,4 +15,9 @@ struct MemoryAllocationError: public std::exception {
     }
 };
 
+struct TestError: public std::exception {
+    const char * what () const noexcept override {
+        return "TestError";
+    }
+};
 #endif //SEQUENCE_MY_EXCEPTIONS_H

@@ -8,14 +8,15 @@ class DynamicArray {
 public:
     DynamicArray(T* items, int count);
     explicit DynamicArray(int size = 0);
+    ~DynamicArray();
     DynamicArray(DynamicArray<T> const &dynamic_array);
     T Get(int index);
     int GetSize();
     void Set(int index, T value);
     void Resize(int new_size);
 private:
-    T* items;
-    int size{};
+    T* items = nullptr;
+    int size = 0;
 };
 
 
@@ -24,7 +25,7 @@ DynamicArray<T>::DynamicArray(T* items, int count) {
     if (count < 0) {
         throw IndexOutOfRange();
     }
-    this->items = (T *) malloc(sizeof(T) * count);
+    this->items = new T[count];
     if (this->items == nullptr) {
         throw MemoryAllocationError();
     }
@@ -43,12 +44,17 @@ DynamicArray<T>::DynamicArray(int size) {
         this->size = 0;
         this->items = nullptr;
     } else {
-        this->items = (T *) malloc(sizeof(T) * size);
+        this->items = new T[size];
         if (this->items == nullptr) {
             throw MemoryAllocationError();
         }
         this->size = size;
     }
+}
+
+template  <class T>
+DynamicArray<T>::~DynamicArray() {
+    free(this->items);
 }
 
 template  <class T>
@@ -62,7 +68,7 @@ DynamicArray<T>::DynamicArray(DynamicArray<T> const &dynamic_array) {
         this->items = nullptr;
         return;
     }
-    this->items = (T*) malloc(sizeof(T) * size);
+    this->items = new T[size];
     if (this->items == nullptr) {
         throw MemoryAllocationError();
     }
@@ -99,7 +105,7 @@ void DynamicArray<T>::Resize(int new_size) {
         throw IndexOutOfRange();
     }
     if(this->size == 0) {
-        this->items = (T*) malloc(sizeof(T) * new_size);
+        this->items = new T[size];
     } else {
         this->items = (T*) realloc((void *) this->items, sizeof(T) * new_size);
     }

@@ -19,9 +19,9 @@ public:
     void Prepend(T item) override;
     void InsertAt(T item, int index) override;
     Sequence<T>* Concat(Sequence<T> * list) override;
-    Sequence<T>* GetSubsequence(int startIndex, int endIndex);
+    Sequence<T>* GetSubsequence(int startIndex, int endIndex) override;
 protected:
-    DynamicArray<T>* items;
+    DynamicArray<T>* items = nullptr;
 };
 
 template <class T>

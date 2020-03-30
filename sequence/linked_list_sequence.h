@@ -20,12 +20,12 @@ public:
     void InsertAt(T item, int index) override;
     Sequence<T>* Concat(Sequence<T> * list) override;
 protected:
-    LinkedList<T>* items;
+    LinkedList<T>* items = nullptr;
 };
 
 template <class T>
 LinkedListSequence<T>::LinkedListSequence() {
-    this->items = new LinkedList<T>() ;
+    this->items = new LinkedList<T>();
 }
 
 template <class T>

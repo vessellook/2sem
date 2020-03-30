@@ -27,5 +27,7 @@ int main() {
     show(list1);
     auto list2 = new LinkedListSequence<int>(items, 3);
     show(list2);
+    *list1 == *list2;
+    cout << (*list1)[0];
     return 0;
 }

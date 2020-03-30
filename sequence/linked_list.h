@@ -6,7 +6,7 @@ class LinkedList {
 public:
     LinkedList();
     LinkedList(T* items, int count, bool is_direct_order = true);
-    LinkedList(LinkedList<T> const &linked_list, bool is_direct_order = true);
+    LinkedList(LinkedList<T> const & linked_list, bool is_direct_order = true);
     T GetFirst();
     T GetLast();
     T Get(int index);
