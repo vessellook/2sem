@@ -81,10 +81,10 @@ int main() {
         }
     }
     cout << "TEST PASSED: set values and got values are equal" << endl;
-    delete(array1);
-    delete(array2);
-    delete(array3);
-    cout << "TEST PASSED: delete(array) don't make errors" << endl;
+    delete array1;
+    delete array2;
+    delete array3;
+    cout << "TEST PASSED: delete array don't make errors" << endl;
     return 0;
 }
 

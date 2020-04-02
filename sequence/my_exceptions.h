@@ -1,23 +1,19 @@
 #ifndef SEQUENCE_MY_EXCEPTIONS_H
 #define SEQUENCE_MY_EXCEPTIONS_H
-
+#include <string>
 #include <exception>
 
-struct IndexOutOfRange: public std::exception {
+struct MyError: public std::exception {
+    static const std::string default_message;
+    std::string message;
+    explicit MyError(const std::string message = MyError::default_message) {
+        this->message = message;
+    }
     const char * what () const noexcept override {
-        return "IndexOutOfRange";
+        return this->message.c_str();
     }
 };
 
-struct MemoryAllocationError: public std::exception {
-    const char * what () const noexcept override {
-        return "MemoryAllocationError";
-    }
-};
+const std::string MyError::default_message = "Just Some Error :)";
 
-struct TestError: public std::exception {
-    const char * what () const noexcept override {
-        return "TestError";
-    }
-};
 #endif //SEQUENCE_MY_EXCEPTIONS_H

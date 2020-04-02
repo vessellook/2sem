@@ -10,3 +10,5 @@ void* getElement(struct DynamicArray* arr, int index);
 struct DynamicArray* map(struct DynamicArray* arr, void* (*func)(void*), int size_of_element);
 struct DynamicArray* where(struct DynamicArray* arr, int (*func)(void*));
 #endif //DYNAMIC_ARRAY_DYNAMIC_ARRAY_H
+
+

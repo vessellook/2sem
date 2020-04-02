@@ -1,7 +1,9 @@
 #include <iostream>
 #include "array_sequence.h"
 #include "linked_list_sequence.h"
-
+#include "matrix.h"
+#include "matrix_a.h"
+#include "matrix_l.h"
 
 using namespace std;
 void show(Sequence<int>* list) {

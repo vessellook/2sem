@@ -8,12 +8,13 @@ class DynamicArray {
 public:
     DynamicArray(T* items, int count);
     explicit DynamicArray(int size = 0);
-    ~DynamicArray();
     DynamicArray(DynamicArray<T> const &dynamic_array);
-    T Get(int index);
-    int GetSize();
+    ~DynamicArray();
+    T Get(int index) const;
+    int GetSize() const;
     void Set(int index, T value);
     void Resize(int new_size);
+    T & operator[](int index);
 private:
     T* items = nullptr;
     int size = 0;
@@ -23,11 +24,11 @@ private:
 template <class T>
 DynamicArray<T>::DynamicArray(T* items, int count) {
     if (count < 0) {
-        throw IndexOutOfRange();
+        throw MyError("IndexOutOfRangeError");
     }
     this->items = new T[count];
     if (this->items == nullptr) {
-        throw MemoryAllocationError();
+        throw MyError("MemoryAllocationError");
     }
     for (int i = 0; i < count; i++) {
         this->items[i] = items[i];
@@ -38,7 +39,7 @@ DynamicArray<T>::DynamicArray(T* items, int count) {
 template  <class T>
 DynamicArray<T>::DynamicArray(int size) {
     if(size < 0) {
-        throw IndexOutOfRange();
+        throw MyError("IndexOutOfRangeError");
     }
     if(size == 0) {
         this->size = 0;
@@ -46,7 +47,7 @@ DynamicArray<T>::DynamicArray(int size) {
     } else {
         this->items = new T[size];
         if (this->items == nullptr) {
-            throw MemoryAllocationError();
+            throw MyError("MemoryAllocationError");
         }
         this->size = size;
     }
@@ -61,7 +62,7 @@ template  <class T>
 DynamicArray<T>::DynamicArray(DynamicArray<T> const &dynamic_array) {
     size = dynamic_array.getSize();
     if(size < 0) {
-        throw IndexOutOfRange();
+        throw MyError("IndexOutOfRangeError");
     }
     if(size == 0) {
         this->sie = 0;
@@ -70,7 +71,7 @@ DynamicArray<T>::DynamicArray(DynamicArray<T> const &dynamic_array) {
     }
     this->items = new T[size];
     if (this->items == nullptr) {
-        throw MemoryAllocationError();
+        throw MyError("MemoryAllocationError");
     }
     this->size = size;
     for(int index = 0; index < size; index++) {
@@ -79,22 +80,22 @@ DynamicArray<T>::DynamicArray(DynamicArray<T> const &dynamic_array) {
 }
 
 template <class T>
-T DynamicArray<T>::Get(int index) {
+T DynamicArray<T>::Get(int index) const {
     if(this->size <= index || index < 0) {
-        throw IndexOutOfRange();
+        throw MyError("IndexOutOfRangeError");
     }
     return items[index];
 }
 
 template <class T>
-int DynamicArray<T>::GetSize() {
+int DynamicArray<T>::GetSize() const {
     return this->size;
 }
 
 template <class T>
 void DynamicArray<T>::Set(int index, T value) {
     if(this->size <= index || index < 0) {
-        throw IndexOutOfRange();
+        throw MyError("IndexOutOfRangeError");
     }
     this->items[index] = value;
 }
@@ -102,7 +103,7 @@ void DynamicArray<T>::Set(int index, T value) {
 template <class T>
 void DynamicArray<T>::Resize(int new_size) {
     if(new_size < 0) {
-        throw IndexOutOfRange();
+        throw MyError("IndexOutOfRangeError");
     }
     if(this->size == 0) {
         this->items = new T[size];
@@ -110,8 +111,16 @@ void DynamicArray<T>::Resize(int new_size) {
         this->items = (T*) realloc((void *) this->items, sizeof(T) * new_size);
     }
     if (this->items == nullptr) {
-        throw MemoryAllocationError();
+        throw MyError("MemoryAllocationError");
     }
     this->size = new_size;
+}
+
+template <class T>
+T& DynamicArray<T>::operator[](int index) {
+    if(this->size <= index || index < 0) {
+        throw MyError("IndexOutOfRangeError");
+    }
+    return & this->items[index];
 }
 #endif //SEQUENCE_DYNAMIC_ARRAY_H

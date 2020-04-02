@@ -106,10 +106,10 @@ int main() {
         }
     }
     cout << "TEST PASSED: set values and got values are equal" << endl;
-    delete(list1);
-    delete(list2);
-    delete(list3);
-    cout << "TEST PASSED: delete(list) don't make errors" << endl;
+    delete list1;
+    delete list2;
+    delete list3;
+    cout << "TEST PASSED: delete list don't make errors" << endl;
 
     return 0;
 }
