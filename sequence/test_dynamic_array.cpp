@@ -87,5 +87,3 @@ int main() {
     cout << "TEST PASSED: delete array don't make errors" << endl;
     return 0;
 }
-
-

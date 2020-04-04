@@ -1,9 +1,8 @@
 #include <iostream>
 #include "array_sequence.h"
 #include "linked_list_sequence.h"
-#include "matrix.h"
 #include "matrix_a.h"
-#include "matrix_l.h"
+//#include "matrix_l.h"
 
 using namespace std;
 void show(Sequence<int>* list) {
@@ -29,7 +28,7 @@ int main() {
     show(list1);
     auto list2 = new LinkedListSequence<int>(items, 3);
     show(list2);
-    *list1 == *list2;
+    Sequence<int>::equal(*list1, *list2);
     cout << (*list1)[0];
     return 0;
 }

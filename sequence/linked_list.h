@@ -1,5 +1,4 @@
-#ifndef SEQUENCE_LINKED_LIST_H
-#define SEQUENCE_LINKED_LIST_H
+#pragma once
 
 template <class T>
 class LinkedList {
@@ -8,16 +7,23 @@ public:
     LinkedList(T* items, int count, bool is_direct_order = true);
     LinkedList(LinkedList<T> const & linked_list, bool is_direct_order = true);
     ~LinkedList();
+
+    int GetLength() const;
     T GetFirst() const;
     T GetLast() const;
     T Get(int index) const;
-    int GetLength() const;
+    T Reduce(T (*func)(T, T)) const;
+    T Reduce(T (*func)(T, T), T initial) const;
+    LinkedList<T>* Map(T (*func)(T)) const;
+    LinkedList<T>* Where(bool (*func)(T)) const;
+    LinkedList<T>* Concat(const LinkedList<T> *list) const;
     LinkedList<T>* GetSubList(int startIndex, int endIndex, bool is_direct_order = true) const;
+
     void Append(T item);
     void Prepend(T item);
-    void InsertAt(T item, int index);
     void Set(int index, T item);
-    LinkedList<T>* Concat(const LinkedList<T> *list) const;
+    void InsertAt(T item, int index);
+
     T& operator[](int index);
 private:
     class Node;
@@ -96,7 +102,7 @@ T LinkedList<T>::Get(int index) const {
     if(this->length <= index || index < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    Node* node = this->MoveForward(this->head, index);
+    auto node = this->MoveForward(this->head, index);
     return node->GetData();
 }
 
@@ -110,7 +116,7 @@ LinkedList<T>* LinkedList<T>::GetSubList(int startIndex, int endIndex, bool is_d
     if(this->length <= endIndex || startIndex < endIndex || startIndex < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    Node* node = this->MoveForward(this->head, startIndex);
+    auto node = this->MoveForward(this->head, startIndex);
     auto sublist = new LinkedList();
     for(int i = 0; i < endIndex - startIndex; i++) {
         if(is_direct_order) {
@@ -146,7 +152,7 @@ void LinkedList<T>::Prepend(T item) {
         this->length = 1;
         return;
     }
-    Node* new_tail = new Node(item);
+    auto new_tail = new Node(item);
     this->tail->SetNext(new_tail);
     this->tail = new_tail;
     this->length++;
@@ -168,8 +174,8 @@ void LinkedList<T>::InsertAt(T item, int index) {
         this->Prepend(item);
         return;
     }
-    Node* node = this->MoveForward(this->head, index-1);
-    Node* new_node = new Node(item, node->GetNext());
+    auto node = this->MoveForward(this->head, index-1);
+    auto new_node = new Node(item, node->GetNext());
     node->SetNext(new_node);
     this->length++;
 }
@@ -179,7 +185,7 @@ void LinkedList<T>::Set(int index, T item) {
     if(this->length <= index || index < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    Node* node = this->MoveForward(this->head, index);
+    auto node = this->MoveForward(this->head, index);
     node->SetData(item);
 }
 
@@ -228,7 +234,7 @@ T& LinkedList<T>::operator[](int index) {
     if(this->length <= index || index < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    Node* node = this->MoveForward(this->head, index);
+    auto node = this->MoveForward(this->head, index);
     return node->GetDataRef();
 }
 
@@ -240,4 +246,51 @@ typename LinkedList<T>::Node *LinkedList<T>::MoveForward(LinkedList::Node *node,
     return node;
 }
 
-#endif //SEQUENCE_LINKED_LIST_H
+template<class T>
+T LinkedList<T>::Reduce(T (*func)(T, T)) const {
+    int len = this->GetLength();
+    if(len <= 0) {
+        throw MyError("Reduce to empty sequence");
+    }
+    T result = this->GetFirst();
+    auto node = this->head;
+    for(int i = 1; i < len; i++) {
+        result = func(node->GetData(), result);
+        node = MoveForward(node);
+    }
+}
+
+template<class T>
+T LinkedList<T>::Reduce(T (*func)(T, T), T initial) const {
+    T result = initial;
+    int len = this->GetLength();
+    auto node = this->head;
+    for(int i = 0; i < len; i++) {
+        result = func(node->GetData(), result);
+        node = MoveForward(node);
+    }
+}
+
+template<class T>
+LinkedList<T> *LinkedList<T>::Map(T (*func)(T)) const {
+    auto new_list = new LinkedList<T>();
+    auto node = this->head;
+    int len = this->GetLength();
+    for(int i = 0; i < len; i++) {
+        new_list->Prepend(func(node->GetData));
+        node = MoveForward(node);
+    }
+    return new_list;
+}
+
+template<class T>
+LinkedList<T> *LinkedList<T>::Where(bool (*func)(T)) const {
+    auto new_list = new LinkedList<T>();
+    int len = this->GetLength();
+    auto node = this->head;
+    for(int i = 0; i < len; i++) {
+        if(func(node->GetData())) {
+            new_list->Prepend(node->GetData());
+        }
+    }
+}

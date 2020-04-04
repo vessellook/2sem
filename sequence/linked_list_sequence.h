@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef SEQUENCE_LINKED_LIST_SEQUENCE_H
-#define SEQUENCE_LINKED_LIST_SEQUENCE_H
-
 #include "sequence.h"
 #include "linked_list.h"
 
@@ -17,24 +14,22 @@ public:
     T GetFirst() const override;
     T GetLast() const override;
     T Get(int index) const override;
-    T Reduce(T (*func)(T), T initial) const override;
-    T Reduce(T (*func)(T)) const override;
-    Sequence<T>* MapNew(T (*func)(T)) const override;
-    Sequence<T>* WhereNew(bool (*func)(T)) const override;
+    T Reduce(T (*func)(T, T)) const override;
+    T Reduce(T (*func)(T, T), T initial) const override;
+    Sequence<T>* Map(T (*func)(T)) const override;
+    Sequence<T>* Where(bool (*func)(T)) const override;
     Sequence<T>* Concat(const Sequence<T> * list) const override;
     Sequence<T>* GetSubsequence(int startIndex, int endIndex) const override;
 
     void Append(T item) override;
     void Prepend(T item) override;
     void InsertAt(T item, int index) override;
-    void MapThis(T (*func)(T)) override;
-    void WhereThis(bool (*func)(T)) override;
 
 
     T& operator[](int index) override;
-    Sequence<T>* operator+(Sequence<T>* sequence) override;
-    Sequence<T>* operator-(Sequence<T>* sequence) override;
-    Sequence<T>* operator*(T scalar) override;
+//    Sequence<T>* operator+(Sequence<T>* sequence) override;
+//    Sequence<T>* operator-(Sequence<T>* sequence) override;
+//    Sequence<T>* operator*(T scalar) override;
 protected:
     LinkedList<T>* items = nullptr;
 };
@@ -54,7 +49,7 @@ LinkedListSequence<T>::LinkedListSequence(LinkedListSequence<T> & list) {
     this->items = new LinkedList<T>();
     int length = list.GetLength();
     for(int i = 0; i < length; i++) {
-        this->items->Prepend(list.Get(i));
+        this->items->Prepend(T(list.Get(i)));
     }
 }
 
@@ -105,32 +100,6 @@ void LinkedListSequence<T>::InsertAt(T item, int index) {
 }
 
 template <class T>
-void LinkedListSequence<T>::MapThis(T(*func)(T)) {
-    int len = this->items->GetLength();
-    T value;
-    for(int i = 0; i < len; i++) {
-        value = this->items->Get(i);
-        value = func(value);
-        this->items->Set(i, value);
-    }
-}
-
-template <class T>
-void LinkedListSequence<T>::WhereThis(bool (*func)(T)) {
-    int len = this->items->GetLength();
-    auto new_items = new LinkedList<T>();
-    T item;
-    for(int i = 0; i < len; i++) {
-        item = this->items[i];
-        if(func(item)) {
-            new_items->Prepend(item);
-        }
-    }
-    delete this->items;
-    this->items = new_items;
-}
-
-template <class T>
 Sequence<T>* LinkedListSequence<T>::Concat(const Sequence<T> * list) const {
     auto new_list = new LinkedListSequence<T>(* this);
     int start = this->GetLength();
@@ -149,17 +118,90 @@ T& LinkedListSequence<T>::operator[](int index) {
     return this->items[index];
 }
 
-template<class T>
-Sequence<T> *LinkedListSequence<T>::operator+(Sequence<T> *sequence) {
-    if(this->GetLength() != sequence->GetLength()) {
-        throw MyError("DifferentLengthsOfSequencesError");
+//template<class T>
+//Sequence<T> *LinkedListSequence<T>::operator+(Sequence<T> *sequence) {
+//    if(this->GetLength() != sequence->GetLength()) {
+//        throw MyError("DifferentLengthsOfSequencesError");
+//    }
+//    int len = this->GetLength();
+//    auto new_sequence = new LinkedListSequence<T>(len);
+//    for(int i = 0; i < len; i++) {
+//        new_sequence[i] = this[i] + sequence[i];
+//    }
+//    return new_sequence;
+//}
+//
+//template<class T>
+//Sequence<T> *LinkedListSequence<T>::operator-(Sequence<T> *sequence) {
+//    if(this->GetLength() != sequence->GetLength()) {
+//        throw MyError("DifferentLengthsOfSequencesError");
+//    }
+//    int len = this->GetLength();
+//    auto new_sequence = new LinkedListSequence<T>(len);
+//    for(int i = 0; i < len; i++) {
+//        new_sequence[i] = this[i] - sequence[i];
+//    }
+//    return new_sequence;
+//}
+//
+//template<class T>
+//Sequence<T> *LinkedListSequence<T>::operator*(T scalar) {
+//    int len = this->GetLength();
+//    auto new_sequence = new LinkedListSequence<T>(len);
+//    for(int i = 0; i < len; i++) {
+//        new_sequence[i] = this[i] * scalar;
+//    }
+//    return new_sequence;
+//}
+
+template <class T>
+T LinkedListSequence<T>::Reduce(T (*func)(T, T), T initial) const {
+    return this->items->Reduce(func, initial);
+}
+
+template <class T>
+T LinkedListSequence<T>::Reduce(T (*func)(T, T)) const {
+    if(this->GetLength() <= 0) {
+        throw MyError("Reduce to empty sequence");
     }
-    int len = this->GetLength();
-    auto new_sequence = new LinkedListSequence<T>(len);
+    return this->items->Reduce(func);
+}
+
+template<class T>
+Sequence<T> *LinkedListSequence<T>::Map(T (*func)(T)) const {
+    auto new_sequence = new LinkedListSequence<T>();
+    new_sequence->items = this->items->Map(func);
+    return new_sequence;
+}
+
+template<class T>
+Sequence<T> *LinkedListSequence<T>::Where(bool (*func)(T)) const {
+    auto new_sequence = new LinkedListSequence<T>();
+    new_sequence->items = this->items->Where(func);
+    return new_sequence;
+}
+
+
+// extra
+
+template <class F, class T>
+LinkedListSequence<T>* MapL(T (*func) (T), const Sequence<F> * sequence) {
+    auto new_sequence = new LinkedListSequence<T>();
+    int len = sequence->GetLength();
     for(int i = 0; i < len; i++) {
-        new_sequence[i] = this[i] + sequence[i];
+        new_sequence->Prepend(func(sequence[i]));
     }
     return new_sequence;
 }
 
-#endif //SEQUENCE_LINKED_LIST_SEQUENCE_H
+template<class T>
+LinkedListSequence<T>* WhereL(bool (*func)(T), const Sequence<T> * sequence) {
+    auto new_sequence = new LinkedListSequence<T>();
+    int len = sequence->GetLength();
+    for(int i = 0; i < len; i++) {
+        if(func(sequence[i])) {
+            new_sequence->Prepend(sequence[i]);
+        }
+    }
+    return new_sequence;
+}

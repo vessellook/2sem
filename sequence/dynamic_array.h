@@ -1,5 +1,4 @@
-#ifndef SEQUENCE_DYNAMIC_ARRAY_H
-#define SEQUENCE_DYNAMIC_ARRAY_H
+#pragma once
 
 #include "my_exceptions.h"
 
@@ -123,4 +122,3 @@ T& DynamicArray<T>::operator[](int index) {
     }
     return & this->items[index];
 }
-#endif //SEQUENCE_DYNAMIC_ARRAY_H

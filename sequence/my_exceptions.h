@@ -1,5 +1,5 @@
-#ifndef SEQUENCE_MY_EXCEPTIONS_H
-#define SEQUENCE_MY_EXCEPTIONS_H
+#pragma once
+
 #include <string>
 #include <exception>
 
@@ -15,5 +15,3 @@ struct MyError: public std::exception {
 };
 
 const std::string MyError::default_message = "Just Some Error :)";
-
-#endif //SEQUENCE_MY_EXCEPTIONS_H
