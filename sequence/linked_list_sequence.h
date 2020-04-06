@@ -8,7 +8,8 @@ class LinkedListSequence: public Sequence<T> {
 public:
     LinkedListSequence();
     LinkedListSequence(T* items, int count);
-    LinkedListSequence(LinkedListSequence<T> & list);
+    LinkedListSequence(const LinkedListSequence<T> & list);
+    ~LinkedListSequence() override;
 
     int GetLength() const override;
     T GetFirst() const override;
@@ -16,10 +17,10 @@ public:
     T Get(int index) const override;
     T Reduce(T (*func)(T, T)) const override;
     T Reduce(T (*func)(T, T), T initial) const override;
-    Sequence<T>* Map(T (*func)(T)) const override;
-    Sequence<T>* Where(bool (*func)(T)) const override;
-    Sequence<T>* Concat(const Sequence<T> * list) const override;
-    Sequence<T>* GetSubsequence(int startIndex, int endIndex) const override;
+    LinkedListSequence<T>* Map(T (*func)(T)) const override;
+    LinkedListSequence<T>* Where(bool (*func)(T)) const override;
+    LinkedListSequence<T>* Concat(const Sequence<T> * list) const override;
+    LinkedListSequence<T>* GetSubsequence(int startIndex, int endIndex) const override;
 
     void Append(T item) override;
     void Prepend(T item) override;
@@ -45,12 +46,18 @@ LinkedListSequence<T>::LinkedListSequence(T* items, int count) {
 }
 
 template <class T>
-LinkedListSequence<T>::LinkedListSequence(LinkedListSequence<T> & list) {
+LinkedListSequence<T>::LinkedListSequence(const LinkedListSequence<T> & list) {
     this->items = new LinkedList<T>();
     int length = list.GetLength();
     for(int i = 0; i < length; i++) {
         this->items->Prepend(T(list.Get(i)));
     }
+}
+
+
+template<class T>
+LinkedListSequence<T>::~LinkedListSequence() {
+    delete this->items;
 }
 
 template <class T>
@@ -69,7 +76,7 @@ T LinkedListSequence<T>::Get(int index) const {
 }
 
 template <class T>
-Sequence<T>* LinkedListSequence<T>::GetSubsequence(int startIndex, int endIndex) const {
+LinkedListSequence<T>* LinkedListSequence<T>::GetSubsequence(int startIndex, int endIndex) const {
     auto sublist = this->items->GetSubList(startIndex, endIndex);
     auto subsequence = new LinkedListSequence<T>();
     int length = sublist->GetLength();
@@ -100,8 +107,8 @@ void LinkedListSequence<T>::InsertAt(T item, int index) {
 }
 
 template <class T>
-Sequence<T>* LinkedListSequence<T>::Concat(const Sequence<T> * list) const {
-    auto new_list = new LinkedListSequence<T>(* this);
+LinkedListSequence<T>* LinkedListSequence<T>::Concat(const Sequence<T> * list) const {
+    auto new_list = new LinkedListSequence<T>(*this);
     int start = this->GetLength();
     int end = start + list->GetLength();
     for(int index = start; index < end; index++) {
@@ -113,9 +120,11 @@ Sequence<T>* LinkedListSequence<T>::Concat(const Sequence<T> * list) const {
 template <class T>
 T& LinkedListSequence<T>::operator[](int index) {
     if(this->GetLength() <= index || index < 0) {
-        throw MyError("IndexOutOfRangeError");
+        std::string message = "this->GetLength() = " + std::to_string(this->GetLength())
+                + "; index = " + std::to_string(index);
+        throw IndexOutOfRangeError(message, __FILE__, __func__, __LINE__);
     }
-    return this->items[index];
+    return (*(this->items))[index];
 }
 
 //template<class T>
@@ -168,14 +177,14 @@ T LinkedListSequence<T>::Reduce(T (*func)(T, T)) const {
 }
 
 template<class T>
-Sequence<T> *LinkedListSequence<T>::Map(T (*func)(T)) const {
+LinkedListSequence<T> *LinkedListSequence<T>::Map(T (*func)(T)) const {
     auto new_sequence = new LinkedListSequence<T>();
     new_sequence->items = this->items->Map(func);
     return new_sequence;
 }
 
 template<class T>
-Sequence<T> *LinkedListSequence<T>::Where(bool (*func)(T)) const {
+LinkedListSequence<T> *LinkedListSequence<T>::Where(bool (*func)(T)) const {
     auto new_sequence = new LinkedListSequence<T>();
     new_sequence->items = this->items->Where(func);
     return new_sequence;

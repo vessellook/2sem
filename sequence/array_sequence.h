@@ -4,12 +4,14 @@
 #include "sequence.h"
 #include "dynamic_array.h"
 
+
 template <class T>
 class ArraySequence: public Sequence<T> {
 public:
     ArraySequence();
     ArraySequence(T* items, int count);
     ArraySequence(const ArraySequence<T> & array);
+    ~ArraySequence() override;
 
     int GetLength() const override;
     T GetFirst() const override;
@@ -17,10 +19,10 @@ public:
     T Get(int index) const override;
     T Reduce(T (*func)(T, T)) const override;
     T Reduce(T (*func)(T, T), T initial) const override;
-    Sequence<T>* Map(T (*func)(T)) const override;
-    Sequence<T>* Where(bool (*func)(T)) const override;
-    Sequence<T>* Concat(const Sequence<T> * list) const override;
-    Sequence<T>* GetSubsequence(int startIndex, int endIndex) const override;
+    ArraySequence<T>* Map(T (*func)(T)) const override;
+    ArraySequence<T>* Where(bool (*func)(T)) const override;
+    ArraySequence<T>* Concat(const Sequence<T> * list) const override;
+    ArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override;
 
     void Append(T item) override;
     void Prepend(T item) override;
@@ -44,19 +46,28 @@ ArraySequence<T>::ArraySequence() {
 template <class T>
 ArraySequence<T>::ArraySequence(T* items, int count) {
     this->items = new DynamicArray<T>(items, count);
+    this->length = count;
 }
 
 template <class T>
 ArraySequence<T>::ArraySequence(const ArraySequence<T> & array) {
-    this->items = new DynamicArray<T>();
-    int len = array.GetLength();
-    for(int i = 0; i < len; i++) {
+    this->length = array.GetLength();
+    this->items = new DynamicArray<T>(this->length + 10);
+    for(int i = 0; i < this->length; i++) {
         this->items->Set(i, T(array.Get(i)));
     }
 }
 
+template<class T>
+ArraySequence<T>::~ArraySequence() {
+    delete this->items;
+}
+
 template <class T>
 T ArraySequence<T>::GetFirst() const {
+    if(this->GetLength() <= 0) {
+        throw IndexOutOfRangeError("this->GetLength() <= 0", __FILE__, __func__, __LINE__);
+    }
     return this->items->Get(0);
 }
 
@@ -64,13 +75,18 @@ template <class T>
 T ArraySequence<T>::GetLast() const {
     int size = this->GetLength();
     if(size <= 0) {
-        throw MyError("IndexOutOfRangeError");
+        throw IndexOutOfRangeError("this->GetLength() <= 0", __FILE__, __func__, __LINE__);
     }
-    return this->items->Get(size - 1);
+    return this->items->Get(size-1);
 }
 
 template  <class T>
 T ArraySequence<T>::Get(int index) const {
+    if(this->GetLength() <= index || index < 0) {
+        std::string message = "this->GetLength() = " + std::to_string(this->GetLength())
+                              + "; index = " + std::to_string(index);
+        throw IndexOutOfRangeError(message, __FILE__, __func__, __LINE__);
+    }
 return this->items->Get(index);
 }
 
@@ -84,7 +100,7 @@ void ArraySequence<T>::Append(T item) {
     int len = this->GetLength();
     this->Resize(len + 1);
     for(int i = len; i > 0; i--) {
-        this->items->Set(i, this->items->Get(i-1));
+        (*this)[i] = (*this)[i-1];
     }
     this->items->Set(0, item);
 }
@@ -100,14 +116,14 @@ template <class T>
 void ArraySequence<T>::InsertAt(T item, int index) {
     int len = this->GetLength();
     this->Resize(len + 1);
-    for(int i = len; i > index - 1; i--) {
-        this->items->Set(i+1, this->items->Get(i));
+    for(int i = len; i > index; i--) {
+        this->items->Set(i, this->items->Get(i-1));
     }
     this->items->Set(index, item);
 }
 
 template <class T>
-Sequence<T>* ArraySequence<T>::Concat(const Sequence<T> * list) const {
+ArraySequence<T>* ArraySequence<T>::Concat(const Sequence<T> * list) const {
     auto new_list = new ArraySequence(* this);
     int start = this->GetLength();
     int end = start + list->GetLength();
@@ -118,7 +134,7 @@ Sequence<T>* ArraySequence<T>::Concat(const Sequence<T> * list) const {
 }
 
 template <class T>
-Sequence<T>* ArraySequence<T>::GetSubsequence(int startIndex, int endIndex) const {
+ArraySequence<T>* ArraySequence<T>::GetSubsequence(int startIndex, int endIndex) const {
     if (this->GetLength() <= endIndex || startIndex < 0 || startIndex > endIndex) {
         throw MyError("IndexOutOfRangeError");
     }
@@ -134,44 +150,8 @@ T& ArraySequence<T>::operator[](int index) {
     if(this->GetLength() <= index || index < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    return this->items[index];
+    return (*(this->items))[index];
 }
-
-//template<class T>
-//Sequence<T>* ArraySequence<T>::operator+(const Sequence<T>* sequence) const {
-//    if(this->GetLength() != sequence->GetLength()) {
-//        throw MyError("DifferentLengthsOfSequencesError");
-//    }
-//    int len = this->GetLength();
-//    auto new_sequence = new ArraySequence<T>(this);
-//    for(int i = 0; i < len; i++) {
-//        new_sequence[i] = this[i] + sequence[i];
-//    }
-//    return new_sequence;
-//}
-//
-//template<class T>
-//Sequence<T>* ArraySequence<T>::operator-(const Sequence<T>* sequence) const {
-//    if(this->GetLength() != sequence->GetLength()) {
-//        throw MyError("DifferentLengthsOfSequencesError");
-//    }
-//    int len = this->GetLength();
-//    auto new_sequence = new ArraySequence<T>(this);
-//    for(int i = 0; i < len; i++) {
-//        new_sequence[i] = this[i] - sequence[i];
-//    }
-//    return new_sequence;
-//}
-//
-//template<class T>
-//Sequence<T> *ArraySequence<T>::operator*(T scalar) {
-//    int len = this->GetLength();
-//    auto new_sequence = new ArraySequence<T>(this);
-//    for(int i = 0; i < len; i++) {
-//        new_sequence[i] = this[i] * scalar;
-//    }
-//    return new_sequence;
-//}
 
 template <class T>
 T ArraySequence<T>::Reduce(T (*func)(T, T), T initial) const {
@@ -197,17 +177,19 @@ T ArraySequence<T>::Reduce(T (*func)(T, T)) const {
 }
 
 template<class T>
-Sequence<T> *ArraySequence<T>::Where(bool (*func)(T)) const {
-    auto new_array = new ArraySequence<T>(this);
+ArraySequence<T> *ArraySequence<T>::Where(bool (*func)(T)) const {
+    auto new_array = new ArraySequence<T>();
     int len = new_array->GetLength();
     for(int i = 0; i < len; i++) {
-        new_array[i] = func(new_array[i]);
+        if(func((*new_array)[i])) {
+            new_array->Prepend((*new_array)[i]);
+        }
     }
     return new_array;
 }
 
 template<class T>
-Sequence<T> *ArraySequence<T>::Map(T (*func)(T)) const {
+ArraySequence<T> *ArraySequence<T>::Map(T (*func)(T)) const {
     auto new_array = new ArraySequence<T>();
     int len = this->GetLength();
     for(int i = 0; i < len; i++) {
@@ -221,13 +203,13 @@ Sequence<T> *ArraySequence<T>::Map(T (*func)(T)) const {
 template<class T>
 void ArraySequence<T>::Resize(int new_size) {
     if(new_size < 0) {
-        throw MyError("Resize to negative size");
+        std::string message = "new_size = " + std::to_string(new_size);
+        throw ResizeToNegativeSizeError(message, __FILE__, __func__, __LINE__);
     }
     if(this->items->GetSize() < new_size) {
         this->items->Resize(new_size + 10);
-    } else {
-        this->length = new_size;
     }
+    this->length = new_size;
 }
 
 // extra

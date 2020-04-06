@@ -4,14 +4,38 @@
 #include <exception>
 
 struct MyError: public std::exception {
-    static const std::string default_message;
     std::string message;
-    explicit MyError(const std::string message = MyError::default_message) {
+    explicit MyError(const std::string & message) {
         this->message = message;
+    }
+    MyError(const std::string & message,
+            const std::string & file,
+            const std::string & func,
+            int line) {
+        this->message = message + " [ERROR in " + file + " in " + func + ", line " + std::to_string(line) + "]";
     }
     const char * what () const noexcept override {
         return this->message.c_str();
     }
 };
 
-const std::string MyError::default_message = "Just Some Error :)";
+struct IndexOutOfRangeError: public MyError {
+    IndexOutOfRangeError(const std::string & message,
+            const std::string & file,
+            const std::string & func,
+            int line) : MyError(message, file, func, line) {};
+};
+
+struct MemoryAllocationError: public MyError {
+    MemoryAllocationError(const std::string & message,
+                          const std::string & file,
+                          const std::string & func,
+                          int line) : MyError(message, file, func, line) {};
+};
+
+struct ResizeToNegativeSizeError: public MyError {
+    ResizeToNegativeSizeError(const std::string & message,
+                          const std::string & file,
+                          const std::string & func,
+                          int line) : MyError(message, file, func, line) {};
+};

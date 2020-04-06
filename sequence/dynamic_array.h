@@ -23,11 +23,11 @@ private:
 template <class T>
 DynamicArray<T>::DynamicArray(T* items, int count) {
     if (count < 0) {
-        throw MyError("IndexOutOfRangeError");
+        throw IndexOutOfRangeError("count < 0", __FILE__, __func__, __LINE__);
     }
     this->items = new T[count];
     if (this->items == nullptr) {
-        throw MyError("MemoryAllocationError");
+        throw MemoryAllocationError("this->items == nullptr", __FILE__, __func__, __LINE__);
     }
     for (int i = 0; i < count; i++) {
         this->items[i] = items[i];
@@ -38,7 +38,7 @@ DynamicArray<T>::DynamicArray(T* items, int count) {
 template  <class T>
 DynamicArray<T>::DynamicArray(int size) {
     if(size < 0) {
-        throw MyError("IndexOutOfRangeError");
+        throw IndexOutOfRangeError("size < 0", __FILE__, __func__, __LINE__);
     }
     if(size == 0) {
         this->size = 0;
@@ -46,7 +46,7 @@ DynamicArray<T>::DynamicArray(int size) {
     } else {
         this->items = new T[size];
         if (this->items == nullptr) {
-            throw MyError("MemoryAllocationError");
+            throw MemoryAllocationError("this->items == nullptr", __FILE__, __func__, __LINE__);
         }
         this->size = size;
     }
@@ -54,34 +54,36 @@ DynamicArray<T>::DynamicArray(int size) {
 
 template  <class T>
 DynamicArray<T>::~DynamicArray() {
-    free(this->items);
+    delete this->items;
 }
 
 template  <class T>
 DynamicArray<T>::DynamicArray(DynamicArray<T> const &dynamic_array) {
-    size = dynamic_array.getSize();
+    size = dynamic_array.GetSize();
     if(size < 0) {
-        throw MyError("IndexOutOfRangeError");
+        IndexOutOfRangeError("size < 0", __FILE__, __func__, __LINE__);
     }
     if(size == 0) {
-        this->sie = 0;
+        this->size = 0;
         this->items = nullptr;
         return;
     }
     this->items = new T[size];
     if (this->items == nullptr) {
-        throw MyError("MemoryAllocationError");
+        throw MemoryAllocationError("this->items == nullptr", __FILE__, __func__, __LINE__);
     }
     this->size = size;
     for(int index = 0; index < size; index++) {
-        this->set(index, dynamic_array.get(index));
+        this->Set(index, dynamic_array.Get(index));
     }
 }
 
 template <class T>
 T DynamicArray<T>::Get(int index) const {
     if(this->size <= index || index < 0) {
-        throw MyError("IndexOutOfRangeError");
+        std::string message = "this->size = " + std::to_string(this->size)
+                              + "; index = " + std::to_string(index);
+        throw IndexOutOfRangeError(message, __FILE__, __func__, __LINE__);
     }
     return items[index];
 }
@@ -94,7 +96,9 @@ int DynamicArray<T>::GetSize() const {
 template <class T>
 void DynamicArray<T>::Set(int index, T value) {
     if(this->size <= index || index < 0) {
-        throw MyError("IndexOutOfRangeError");
+        std::string message = "this->size = " + std::to_string(this->size)
+                              + "; index = " + std::to_string(index);
+        throw IndexOutOfRangeError(message, __FILE__, __func__, __LINE__);
     }
     this->items[index] = value;
 }
@@ -102,7 +106,7 @@ void DynamicArray<T>::Set(int index, T value) {
 template <class T>
 void DynamicArray<T>::Resize(int new_size) {
     if(new_size < 0) {
-        throw MyError("IndexOutOfRangeError");
+        IndexOutOfRangeError("new_size < 0", __FILE__, __func__, __LINE__);
     }
     if(this->size == 0) {
         this->items = new T[size];
@@ -110,7 +114,7 @@ void DynamicArray<T>::Resize(int new_size) {
         this->items = (T*) realloc((void *) this->items, sizeof(T) * new_size);
     }
     if (this->items == nullptr) {
-        throw MyError("MemoryAllocationError");
+        MemoryAllocationError("this->items == nullptr", __FILE__, __func__, __LINE__);
     }
     this->size = new_size;
 }
@@ -118,7 +122,9 @@ void DynamicArray<T>::Resize(int new_size) {
 template <class T>
 T& DynamicArray<T>::operator[](int index) {
     if(this->size <= index || index < 0) {
-        throw MyError("IndexOutOfRangeError");
+        std::string message = "this->size = " + std::to_string(this->size)
+                              + "; index = " + std::to_string(index);
+        throw IndexOutOfRangeError(message, __FILE__, __func__, __LINE__);
     }
-    return & this->items[index];
+    return (this->items)[index];
 }

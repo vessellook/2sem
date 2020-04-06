@@ -3,6 +3,8 @@
 template <class T>
 class Matrix {
 public:
+    virtual ~Matrix() = default;
+
     virtual int GetSize() const = 0;
     virtual T Get(int col_index, int row_index) const = 0;
     virtual Matrix<T>* Map(T (*func)(T)) const = 0;
@@ -22,15 +24,15 @@ public:
 //    virtual void ExchangeRows(int index1, int index2) = 0;
 //    virtual void ExchangeCols(int index1, int index2) = 0;
 
-    virtual Matrix<T>* operator*(T scalar) const = 0;
-    virtual Matrix<T>* operator*(const Matrix<T>* matrix) const = 0;
-    virtual Matrix<T>* operator+(const Matrix<T>* matrix) const = 0;
-    virtual Matrix<T>* operator-(const Matrix<T>* matrix) const = 0;
+    virtual Matrix<T>& operator*(T scalar) const = 0;
+    virtual Matrix<T>& operator*(const Matrix<T>& matrix) const = 0;
+    virtual Matrix<T>& operator+(const Matrix<T>& matrix) const = 0;
+    virtual Matrix<T>& operator-(const Matrix<T>& matrix) const = 0;
 
     virtual void operator*=(T scalar) = 0;
-    virtual void operator*=(const Matrix<T>* matrix) = 0;
-    virtual void operator+=(const Matrix<T>* matrix) = 0;
-    virtual void operator-=(const Matrix<T>* matrix) = 0;
+    virtual void operator*=(const Matrix<T>& matrix) = 0;
+    virtual void operator+=(const Matrix<T>& matrix) = 0;
+    virtual void operator-=(const Matrix<T>& matrix) = 0;
     virtual Sequence<T> & operator[](int index) = 0;
 };
 

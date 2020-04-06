@@ -10,19 +10,19 @@ class MatrixA: public Matrix<T> {
 public:
     explicit MatrixA(int size);
     explicit MatrixA(const Matrix<T>& matrix);
-    ~MatrixA();
+    ~MatrixA() override;
 
     int GetSize() const;
     T Get(int col_index, int row_index) const override;
-    Matrix<T>* Map(T (*func)(T)) const override;
-    Matrix<T>* TransposeNew() const override;
-    Matrix<T>* MulRowNew(int row_index, T scalar) const override;
-    Matrix<T>* MulColNew(int col_index, T scalar) const override;
-    Matrix<T>* MinorNew(int col_index, int row_index) const override;
-    Matrix<T>* AddToRowNew(int row_index1, int row_index2) const override;
-    Matrix<T>* AddToColNew(int col_index1, int col_index2) const override;
-    Matrix<T>* ExchangeRowsNew(int row_index1, int row_index2) const override;
-    Matrix<T>* ExchangeColsNew(int col_index1, int col_index2) const override;
+    MatrixA<T>* Map(T (*func)(T)) const override;
+    MatrixA<T>* TransposeNew() const override;
+    MatrixA<T>* MulRowNew(int row_index, T scalar) const override;
+    MatrixA<T>* MulColNew(int col_index, T scalar) const override;
+    MatrixA<T>* MinorNew(int col_index, int row_index) const override;
+    MatrixA<T>* AddToRowNew(int row_index1, int row_index2) const override;
+    MatrixA<T>* AddToColNew(int col_index1, int col_index2) const override;
+    MatrixA<T>* ExchangeRowsNew(int row_index1, int row_index2) const override;
+    MatrixA<T>* ExchangeColsNew(int col_index1, int col_index2) const override;
 
     void Set(int col_index, int row_index, T value);
 //    void MulRow(int index, T scalar) override;
@@ -31,15 +31,15 @@ public:
 //    void ExchangeCols(int index1, int index2) override;
 //    void Transpose() override;
 
-    Matrix<T>* operator*(T scalar) const override;
-    Matrix<T>* operator*(const Matrix<T>* matrix) const override;
-    Matrix<T>* operator+(const Matrix<T>* matrix) const override;
-    Matrix<T>* operator-(const Matrix<T>* matrix) const override;
+    MatrixA<T>& operator*(T scalar) const override;
+    MatrixA<T>& operator*(const Matrix<T>& matrix) const override;
+    MatrixA<T>& operator+(const Matrix<T>& matrix) const override;
+    MatrixA<T>& operator-(const Matrix<T>& matrix) const override;
 
     void operator*=(T scalar) override;
-    void operator*=(const Matrix<T>* matrix) override;
-    void operator+=(const Matrix<T>* matrix) override;
-    void operator-=(const Matrix<T>* matrix) override;
+    void operator*=(const Matrix<T>& matrix) override;
+    void operator+=(const Matrix<T>& matrix) override;
+    void operator-=(const Matrix<T>& matrix) override;
     ArraySequence<T> & operator[](int col_index) override;
 private:
     int size = 0;
@@ -76,7 +76,7 @@ MatrixA<T>::MatrixA(const Matrix<T> &matrix) {
         this->cols[i] = new ArraySequence<T>();
         sequence = matrix[i];
         for(int j = 0; j < len; j++) {
-            this->cols[i][j] = sequence[j];
+            this->Set(i, j, sequence[j]);
         }
     }
 }
@@ -97,11 +97,11 @@ T MatrixA<T>::Get(int col_index, int row_index) const {
         row_index < 0 || this->size <= row_index) {
         throw MyError("IndexOutOfRangeError");
     }
-    return this->cols[col_index][row_index];
+    return (*((*(this->cols))[col_index]))[row_index];
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::Map(T (*func)(T)) const {
+MatrixA<T> *MatrixA<T>::Map(T (*func)(T)) const {
     int len = this->size;
     auto new_matrix = new MatrixA<T>(len);
     new_matrix->MapThis(func);
@@ -109,39 +109,39 @@ Matrix<T> *MatrixA<T>::Map(T (*func)(T)) const {
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::TransposeNew() const {
+MatrixA<T> *MatrixA<T>::TransposeNew() const {
     int len = this->GetSize();
     auto new_matrix = new MatrixA<T>(len);
     for(int i = 0; i < len; i++) {
         for(int j = 0; j < len; j++) {
-            new_matrix[i][j] = this[j][i];
+            new_matrix->Set(i, j, this->Get(j, i));
         }
     }
     return new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::MulRowNew(int row_index, T scalar) const {
+MatrixA<T> *MatrixA<T>::MulRowNew(int row_index, T scalar) const {
     int len = this->GetSize();
-    auto new_matrix = new MatrixA<T>(this);
+    auto new_matrix = new MatrixA<T>(*this);
     for(int i = 0; i < len; i++) {
-        new_matrix[i][row_index] *= scalar;
+        new_matrix->Set(i, row_index, new_matrix->Get(i, row_index) * scalar);
     }
     return new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::MulColNew(int col_index, T scalar) const {
+MatrixA<T> *MatrixA<T>::MulColNew(int col_index, T scalar) const {
     int len = this->GetSize();
-    auto new_matrix = new MatrixA<T>(this);
+    auto new_matrix = new MatrixA<T>(*this);
     for(int i = 0; i < len; i++) {
-        new_matrix[i][col_index] *= scalar;
+        new_matrix->Set(col_index, i, new_matrix->Get(col_index, i) * scalar);
     }
     return new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::MinorNew(int col_index, int row_index) const {
+MatrixA<T> *MatrixA<T>::MinorNew(int col_index, int row_index) const {
     int len = this->size;
     if(col_index < 0 || len <= col_index ||
        row_index < 0 || len <= row_index) {
@@ -155,7 +155,7 @@ Matrix<T> *MatrixA<T>::MinorNew(int col_index, int row_index) const {
             y = 0;
             for(int j = 0; j < len; j++) {
                 if(j != row_index) {
-                    minor[x][y] = this[i][j];
+                    (*minor)[x][y] = this->Get(i, j);
                     y++;
                 }
             }
@@ -167,43 +167,43 @@ Matrix<T> *MatrixA<T>::MinorNew(int col_index, int row_index) const {
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::AddToRowNew(int row_index1, int row_index2) const {
-    auto new_matrix = new MatrixA<T>(this);
+MatrixA<T> *MatrixA<T>::AddToRowNew(int row_index1, int row_index2) const {
+    auto new_matrix = new MatrixA<T>(*this);
     int len = this->GetSize();
     for(int i = 0; i < len; i++) {
-        new_matrix[i][row_index1] += this[i][row_index2];
+        (*new_matrix)[i][row_index1] += this->Get(i, row_index2);
     }
     return new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::AddToColNew(int col_index1, int col_index2) const {
-    auto new_matrix = new MatrixA<T>(this);
+MatrixA<T> *MatrixA<T>::AddToColNew(int col_index1, int col_index2) const {
+    auto new_matrix = new MatrixA<T>(*this);
     int len = this->GetSize();
     for(int i = 0; i < len; i++) {
-        new_matrix[col_index1][i] += this[col_index2][i];
+        (*new_matrix)[col_index1][i] += this->Get(col_index2, i);
     }
     return new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::ExchangeRowsNew(int row_index1, int row_index2) const {
-    auto new_matrix = new MatrixA<T>(this);
+MatrixA<T> *MatrixA<T>::ExchangeRowsNew(int row_index1, int row_index2) const {
+    auto new_matrix = new MatrixA<T>(*this);
     int len = this->GetSize();
     for(int i = 0; i < len; i++) {
-        new_matrix[i][row_index1] = this[i][row_index2];
-        new_matrix[i][row_index2] = this[i][row_index1];
+        (*new_matrix)[i][row_index1] = this->Get(i, row_index2);
+        (*new_matrix)[i][row_index2] = this->Get(i, row_index1);
     }
     return new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::ExchangeColsNew(int col_index1, int col_index2) const {
-    auto new_matrix = new MatrixA<T>(this);
+MatrixA<T> *MatrixA<T>::ExchangeColsNew(int col_index1, int col_index2) const {
+    auto new_matrix = new MatrixA<T>(*this);
     int len = this->GetSize();
     for(int i = 0; i < len; i++) {
-        new_matrix[col_index1][i] = this[col_index2][i];
-        new_matrix[col_index2][i] = this[col_index1][i];
+        (*new_matrix)[col_index1][i] = this->Get(col_index2, i);
+        (*new_matrix)[col_index2][i] = this->Get(col_index1, i);
     }
     return new_matrix;
 }
@@ -214,12 +214,12 @@ void MatrixA<T>::Set(int col_index, int row_index, T value) {
         row_index < 0 || this->size <= row_index) {
         throw MyError("IndexOutOfRangeError");
     }
-    this->cols[col_index][row_index] = value;
+    (*((*(this->cols))[col_index]))[row_index] = value;
 }
 
 template<class T>
 ArraySequence<T> & MatrixA<T>::operator[](int col_index) {
-    return this->cols[col_index];
+    return *((*(this->cols))[col_index]);
 }
 
 template<class T>
@@ -227,78 +227,73 @@ void MatrixA<T>::MapThis(T (*func)(T)) {
     int len = this->size;
     ArraySequence<T>* col;
     for(int i = 0; i < len; i++) {
-        col = this->cols[i]->Map(func);
-        delete this->cols[i];
-        this->cols[i] = col;
+        col = (*this->cols)[i]->Map(func);
+        delete &this->cols[i];
+        (*(this->cols))[i] = col;
     }
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::operator+(const Matrix<T> *matrix) const {
+MatrixA<T> &MatrixA<T>::operator+(const Matrix<T> &matrix) const {
     int len = this->GetSize();
     auto new_matrix = new MatrixA<T>(len);
-    new_matrix += matrix;
-    return new_matrix;
+    *new_matrix += matrix;
+    return *new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::operator-(const Matrix<T> *matrix) const {
+MatrixA<T> &MatrixA<T>::operator-(const Matrix<T> &matrix) const {
     int len = this->GetSize();
     auto new_matrix = new MatrixA<T>(len);
-    new_matrix -= matrix;
-    return new_matrix;
+    *new_matrix -= matrix;
+    return *new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::operator*(const Matrix<T> *matrix) const {
+MatrixA<T> &MatrixA<T>::operator*(const Matrix<T> &matrix) const {
     int len = this->GetSize();
     auto new_matrix = new MatrixA<T>(len);
-    for(int i = 0; i < len; i++) {
-        for(int j = 0; j < len; j++) {
-            new_matrix[i][j] = 0;
-            for(int k = 0; k < len; k++) {
-                new_matrix[i][j] = this[i][k] * matrix[k][j];
-            }
-        }
-    }
-    return new_matrix;
+    *new_matrix *= matrix;
+    return *new_matrix;
 }
 
 template<class T>
-Matrix<T> *MatrixA<T>::operator*(T scalar) const {
-    auto wrapper = MulWrapper<T>(scalar);
-    return this->Map(wrapper.Mul());
+MatrixA<T> &MatrixA<T>::operator*(T scalar) const {
+    MulWrapper<T>::setValue(scalar);
+    T(*func)(T) = MulWrapper<T>::Mul;
+    MatrixA<T>* new_matrix = this->Map(func);
+    return *new_matrix;
 }
 
 template<class T>
-void MatrixA<T>::operator+=(const Matrix<T> *matrix) {
+void MatrixA<T>::operator+=(const Matrix<T> &matrix) {
     int len = this->GetSize();
     for(int i = 0; i < len; i++) {
         for(int j = 0; j < len; j++) {
-            this[i][j] += matrix[i][j];
+            this->Set(i, j, this->Get(i, j) + matrix.Get(i, j));
         }
     }
 }
 
 template<class T>
-void MatrixA<T>::operator-=(const Matrix<T> *matrix) {
+void MatrixA<T>::operator-=(const Matrix<T> &matrix) {
     int len = this->GetSize();
     for(int i = 0; i < len; i++) {
         for(int j = 0; j < len; j++) {
-            this[i][j] -= matrix[i][j];
+            this->Set(i, j, this->Get(i, j) - matrix.Get(i, j));
         }
     }
 }
 
 template<class T>
-void MatrixA<T>::operator*=(const Matrix<T> *matrix) {
+void MatrixA<T>::operator*=(const Matrix<T> &matrix) {
     int len = this->GetSize();
-    auto new_cols = new ArraySequence<ArraySequence<T>*>(this->cols);
+    auto new_cols = new ArraySequence<ArraySequence<T>*>(*(this->cols));
     for(int i = 0; i < len; i++) {
         for(int j = 0; j < len; j++) {
             new_cols[i][j] = 0;
             for(int k = 0; k < len; k++) {
-                new_cols[i][j] = this[i][k] * matrix[k][j];
+                (*(*(new_cols))[i])[j] += this->Get(i, k) * matrix.Get(k, j);
             }
         }
     }
@@ -308,8 +303,8 @@ void MatrixA<T>::operator*=(const Matrix<T> *matrix) {
 
 template<class T>
 void MatrixA<T>::operator*=(T scalar) {
-    auto wrapper = MulWrapper<T>(scalar);
-    this->MapThis(wrapper.Mul());
+    MulWrapper<T>::setValue(scalar);
+    this->MapThis(MulWrapper<T>::Mul);
 }
 
 

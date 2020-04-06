@@ -7,9 +7,6 @@ public:
 //    Sequence(T* items, int count);
 //    Sequence(const Sequence<T> const &list);
     virtual ~Sequence() = default;
-    static bool equal(Sequence<T> sequence1, Sequence<T> sequence2) {
-        return true;
-    }
 
     virtual int GetLength() const = 0;
     virtual T GetFirst() const = 0;
@@ -33,6 +30,20 @@ public:
 };
 
 // extra
+
+template <class T>
+bool operator==(const Sequence<T>& sequence1, const Sequence<T>& sequence2) {
+    if(sequence1.GetLength() != sequence2.GetLength()) {
+        return false;
+    }
+    int len = sequence1.GetLength();
+    for(int i = 0; i < len; i++) {
+        if(sequence1.Get(i) != sequence2.Get(i)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 //template <class T>
 //T Reduce(T (*func)(T, T), Sequence<T>* sequence, T initial) {

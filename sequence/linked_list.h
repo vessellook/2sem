@@ -1,5 +1,7 @@
 #pragma once
 
+#include "my_exceptions.h"
+
 template <class T>
 class LinkedList {
 public:
@@ -30,7 +32,7 @@ private:
     Node* head = nullptr;
     Node* tail = nullptr;
     int length = 0;
-    Node* MoveForward(Node* node, int count = 1);
+    Node* MoveForward(Node* node, int count = 1) const;
 };
 
 
@@ -44,7 +46,7 @@ LinkedList<T>::LinkedList() {
 template <class T>
 LinkedList<T>::LinkedList(T* items, int count, bool is_direct_order) {
     if (count < 0) {
-        throw MyError("IndexOutOfRangeError");
+        throw IndexOutOfRangeError("count < 0", __FILE__, __func__, __LINE__);
     }
     for(int index = 0; index < count; index++) {
         if(is_direct_order) {
@@ -57,15 +59,15 @@ LinkedList<T>::LinkedList(T* items, int count, bool is_direct_order) {
 
 template <class T>
 LinkedList<T>::LinkedList(LinkedList<T> const &linked_list, bool is_direct_order) {
-    int len = linked_list->GetLength();
+    int len = linked_list.GetLength();
     if (len < 0) {
         return;
     }
     for(int index = 0; index < len; index++) {
         if (is_direct_order) {
-            this->Prepend(linked_list->Get(index));
+            this->Prepend(linked_list.Get(index));
         } else {
-            this->Append(linked_list->Get(index));
+            this->Append(linked_list.Get(index));
         }
     }
 }
@@ -75,7 +77,7 @@ LinkedList<T>::~LinkedList() {
     int len = this->GetLength();
     Node* node;
     for(int i = 0; i < len; i++) {
-        node = this->head->next;
+        node = this->head->GetNext();
         delete this->head;
         this->head = node;
     }
@@ -174,7 +176,7 @@ void LinkedList<T>::InsertAt(T item, int index) {
         this->Prepend(item);
         return;
     }
-    auto node = this->MoveForward(this->head, index-1);
+    Node* node = this->MoveForward(this->head, index-1);
     auto new_node = new Node(item, node->GetNext());
     node->SetNext(new_node);
     this->length++;
@@ -185,17 +187,14 @@ void LinkedList<T>::Set(int index, T item) {
     if(this->length <= index || index < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    auto node = this->MoveForward(this->head, index);
+    Node* node = this->MoveForward(this->head, index);
     node->SetData(item);
 }
 
 template <class T>
 LinkedList<T>* LinkedList<T>::Concat(const LinkedList<T> *list) const {
-    auto new_list = new LinkedList<T>(this);
+    auto new_list = new LinkedList<T>(*this);
     int len = list->GetLength();
-    if (len < 0) {
-        return;
-    }
     for(int index = 0; index < len; index++) {
         new_list->Prepend(list->Get(index));
     }
@@ -222,7 +221,7 @@ public:
         return this->data_;
     }
     T& GetDataRef() {
-        return & this->data_;
+        return this->data_;
     }
 private:
     T data_;
@@ -234,12 +233,12 @@ T& LinkedList<T>::operator[](int index) {
     if(this->length <= index || index < 0) {
         throw MyError("IndexOutOfRangeError");
     }
-    auto node = this->MoveForward(this->head, index);
+    Node* node = this->MoveForward(this->head, index);
     return node->GetDataRef();
 }
 
 template<class T>
-typename LinkedList<T>::Node *LinkedList<T>::MoveForward(LinkedList::Node *node, int count) {
+typename LinkedList<T>::Node *LinkedList<T>::MoveForward(LinkedList::Node *node, int count) const {
     for(int i = 0; i < count; i++) {
         node = node->GetNext();
     }
@@ -253,7 +252,7 @@ T LinkedList<T>::Reduce(T (*func)(T, T)) const {
         throw MyError("Reduce to empty sequence");
     }
     T result = this->GetFirst();
-    auto node = this->head;
+    Node* node = this->head;
     for(int i = 1; i < len; i++) {
         result = func(node->GetData(), result);
         node = MoveForward(node);
@@ -277,7 +276,7 @@ LinkedList<T> *LinkedList<T>::Map(T (*func)(T)) const {
     auto node = this->head;
     int len = this->GetLength();
     for(int i = 0; i < len; i++) {
-        new_list->Prepend(func(node->GetData));
+        new_list->Prepend(func(node->GetData()));
         node = MoveForward(node);
     }
     return new_list;
@@ -288,6 +287,7 @@ LinkedList<T> *LinkedList<T>::Where(bool (*func)(T)) const {
     auto new_list = new LinkedList<T>();
     int len = this->GetLength();
     auto node = this->head;
+    T value;
     for(int i = 0; i < len; i++) {
         if(func(node->GetData())) {
             new_list->Prepend(node->GetData());

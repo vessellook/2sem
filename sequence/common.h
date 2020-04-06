@@ -3,12 +3,20 @@
 template <class T>
 class MulWrapper {
 private:
-    T value_;
+    static T hidden_value;
 public:
-    MulWrapper(T value) {
-        this->value_ = value;
+    static void setValue(T value) {
+        hidden_value = value;
     }
-    T Mul(T value) {
-        return value * this->value_;
+    static T Mul(T value) {
+        return value * hidden_value;
     }
 };
+
+template <class T>
+T MulWrapper<T>::hidden_value;
+
+template <class T, T value>
+T Mul(T v) {
+    return v * value;
+}
