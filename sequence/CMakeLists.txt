@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(main main.cpp)
 
-add_executable(test_dynamic_array test_dynamic_array.cpp)
-add_executable(test_linked_list test_linked_list.cpp)
+add_executable(test_dynamic_array tests/test_dynamic_array.cpp)
+add_executable(test_linked_list tests/test_linked_list.cpp)
 
-add_executable(test_sequence test_sequence.cpp)
+add_executable(test_sequence tests/test_sequence.cpp)
 
-add_executable(test_matrix test_matrix.cpp)
+add_executable(test_matrix tests/test_matrix.cpp)
