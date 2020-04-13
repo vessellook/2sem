@@ -7,7 +7,7 @@ using namespace std;
 using namespace my_namespace;
 
 template<class T>
-bool check_length(const LinkedList<T> *list, index_type expected_length, int test_num) {
+bool check_length(const LinkedList<T> *list, int expected_length, int test_num) {
     if (list->GetLength() != expected_length) {
         cout << "TEST " << test_num << ": " << "FAILED: expected list length " << expected_length << ", but got " << list->GetLength() << endl;
         return false;
@@ -19,13 +19,13 @@ bool check_length(const LinkedList<T> *list, index_type expected_length, int tes
 }
 
 template<class T>
-bool check_item_with_Get(const LinkedList<T> *list, index_type index, T expected_value, int test_num) {
+bool check_item_with_Get(const LinkedList<T> *list, int index, T expected_value, int test_num) {
     T value = list->Get(index);
     return check_value(value, expected_value, test_num);
 }
 
 template<class T>
-bool check_item_with_subscript_operator(LinkedList<T> *list, index_type index, T expected_value, int test_num) {
+bool check_item_with_subscript_operator(LinkedList<T> *list, int index, T expected_value, int test_num) {
     T value = (*list)[index];
     return check_value(value, expected_value, test_num);
 }

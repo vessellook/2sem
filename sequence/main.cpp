@@ -7,7 +7,7 @@
 #include "sequence/linked_list_sequence.h"
 #include "matrix/array_matrix.h"
 #include "matrix/list_matrix.h"
-#include "ui/text_block.h"
+//#include "ui/text_block.h"
 
 using namespace std;
 using namespace my_namespace;

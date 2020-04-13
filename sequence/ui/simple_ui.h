@@ -37,7 +37,7 @@ namespace simple_ui {
         for (int i = 0; i < size; i++) {
             std::cout << "|";
             for (int j = 0; j < size; j++) {
-                printf("%4d", (*matrix)[j][i]);
+                std::cout << " " << (*matrix)[j][i];
             }
             std::cout << "   |" << std::endl;
         }

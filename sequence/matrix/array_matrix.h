@@ -13,15 +13,15 @@ namespace my_namespace {
     template<class T>
     class ArrayMatrix : public IMatrix<T> {
     public:
-        explicit ArrayMatrix(index_type size);
+        explicit ArrayMatrix(int size);
 
         explicit ArrayMatrix(const IMatrix<T>& matrix);
 
         ~ArrayMatrix() override;
 
-        index_type GetSize() const;
+        int GetSize() const;
 
-        T Get(index_type col_index, index_type row_index) const override;
+        T Get(int col_index, int row_index) const override;
 
         ArrayMatrix<T> *Clone() const override;
 
@@ -29,21 +29,21 @@ namespace my_namespace {
 
         ArrayMatrix<T> *TransposeNew() const override;
 
-        ArrayMatrix<T> *MulRowNew(index_type row_index, T scalar) const override;
+        void MulRow(int row_index, T scalar) override;
 
-        ArrayMatrix<T> *MulColNew(index_type col_index, T scalar) const override;
+        void MulCol(int col_index, T scalar) override;
 
-        ArrayMatrix<T> *MinorNew(index_type col_index, index_type row_index) const override;
+        ArrayMatrix<T> *MinorNew(int col_index, int row_index) const override;
 
-        ArrayMatrix<T> *AddToRowNew(index_type row_index1, index_type row_index2) const override;
+        void AddToRow(int row_index1, int row_index2, T mul) const override;
 
-        ArrayMatrix<T> *AddToColNew(index_type col_index1, index_type col_index2) const override;
+        void AddToCol(int col_index1, int col_index2, T mul) const override;
 
-        ArrayMatrix<T> *ExchangeRowsNew(index_type row_index1, index_type row_index2) const override;
+        void ExchangeRows(int row_index1, int row_index2) override;
 
-        ArrayMatrix<T> *ExchangeColsNew(index_type col_index1, index_type col_index2) const override;
+        void ExchangeCols(int col_index1, int col_index2) override;
 
-        void Set(index_type col_index, index_type row_index, T value);
+        void Set(int col_index, int row_index, T value);
 
         ArrayMatrix<T> &operator*(T scalar) const override;
 
@@ -61,13 +61,13 @@ namespace my_namespace {
 
         void operator-=(const IMatrix<T> &matrix) override;
 
-        ISequence<T> &operator[](index_type col_index) const override;
+        ISequence<T> &operator[](int col_index) const override;
 
-        ISequence<T> &operator[](index_type col_index) override;
+        ISequence<T> &operator[](int col_index) override;
 
 
     private:
-        index_type size_ = 0;
+        int size_ = 0;
         ISequence<ISequence<T>*> *cols_ = nullptr;
 
         void MapThis(T (*func)(T));
@@ -75,7 +75,7 @@ namespace my_namespace {
 
 
     template<class T>
-    ArrayMatrix<T>::ArrayMatrix(index_type size) {
+    ArrayMatrix<T>::ArrayMatrix(int size) {
         if (size <= 0) {
             throw ZeroSizeOfMatrixError("size = " + std::to_string(size), __FILE__, __func__, __LINE__);
         }
@@ -83,10 +83,10 @@ namespace my_namespace {
         cols_ = new ArraySequence<ISequence<T>*>();
         ArraySequence<T> *col;
         T value;
-        for (index_type i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
 
             col = new ArraySequence<T>();
-            for (index_type j = 0; j < size; j++) {
+            for (int j = 0; j < size; j++) {
                 col->Prepend(T());
             }
             cols_->Prepend(col);
@@ -96,11 +96,11 @@ namespace my_namespace {
     template<class T>
     ArrayMatrix<T>::ArrayMatrix(const IMatrix<T>& matrix) {
         cols_ = new ArraySequence<ISequence<T>*>();
-        index_type len = matrix.GetSize();
-        for (index_type i = 0; i < len; i++) {
+        int len = matrix.GetSize();
+        for (int i = 0; i < len; i++) {
             cols_->Prepend(new ArraySequence<T>());
             const ISequence<T> &sequence = matrix[i];
-            for (index_type j = 0; j < len; j++) {
+            for (int j = 0; j < len; j++) {
                 (*cols_)[i]->Prepend(sequence[j]);
             }
         }
@@ -114,12 +114,12 @@ namespace my_namespace {
     }
 
     template<class T>
-    index_type ArrayMatrix<T>::GetSize() const {
+    int ArrayMatrix<T>::GetSize() const {
         return size_;
     }
 
     template<class T>
-    T ArrayMatrix<T>::Get(index_type col_index, index_type row_index) const {
+    T ArrayMatrix<T>::Get(int col_index, int row_index) const {
         if (col_index < 0 || size_ <= col_index ||
             row_index < 0 || size_ <= row_index) {
             throw IndexOutOfRangeError("IndexOutOfRangeError", __FILE__, __func__, __LINE__);
@@ -136,10 +136,10 @@ namespace my_namespace {
 
     template<class T>
     ArrayMatrix<T> *ArrayMatrix<T>::TransposeNew() const {
-        index_type len = this->GetSize();
+        int len = this->GetSize();
         auto new_matrix = new ArrayMatrix<T>(len);
-        for (index_type i = 0; i < len; i++) {
-            for (index_type j = 0; j < len; j++) {
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
                 new_matrix->Set(i, j, this->Get(j, i));
             }
         }
@@ -147,39 +147,35 @@ namespace my_namespace {
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::MulRowNew(index_type row_index, T scalar) const {
-        index_type len = this->GetSize();
-        auto new_matrix = new ArrayMatrix<T>(*this);
-        for (index_type i = 0; i < len; i++) {
-            new_matrix->Set(i, row_index, new_matrix->Get(i, row_index) * scalar);
+    void ArrayMatrix<T>::MulRow(int row_index, T scalar) {
+        int len = this->GetSize();
+        for (int i = 0; i < len; i++) {
+            (*this)[i][row_index] *= scalar;
         }
-        return new_matrix;
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::MulColNew(index_type col_index, T scalar) const {
-        index_type len = this->GetSize();
-        auto new_matrix = new ArrayMatrix<T>(*this);
-        for (index_type i = 0; i < len; i++) {
-            new_matrix->Set(col_index, i, new_matrix->Get(col_index, i) * scalar);
+    void ArrayMatrix<T>::MulCol(int col_index, T scalar) {
+        int len = this->GetSize();
+        for (int i = 0; i < len; i++) {
+            (*this)[col_index][i] *= scalar;
         }
-        return new_matrix;
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::MinorNew(index_type col_index, index_type row_index) const {
-        index_type len = size_;
+    ArrayMatrix<T> *ArrayMatrix<T>::MinorNew(int col_index, int row_index) const {
+        int len = size_;
         if (col_index < 0 || len <= col_index ||
             row_index < 0 || len <= row_index) {
             throw MyError("Wrong indeces of matrix");
         }
         auto minor = new ArrayMatrix<T>(len - 1);
-        index_type x = 0;
-        index_type y;
-        for (index_type i = 0; i < len; i++) {
+        int x = 0;
+        int y;
+        for (int i = 0; i < len; i++) {
             if (i != col_index) {
                 y = 0;
-                for (index_type j = 0; j < len; j++) {
+                for (int j = 0; j < len; j++) {
                     if (j != row_index) {
                         (*minor)[x][y] = this->Get(i, j);
                         y++;
@@ -193,49 +189,45 @@ namespace my_namespace {
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::AddToRowNew(index_type row_index1, index_type row_index2) const {
-        auto new_matrix = new ArrayMatrix<T>(*this);
-        index_type len = this->GetSize();
-        for (index_type i = 0; i < len; i++) {
-            (*new_matrix)[i][row_index1] += this->Get(i, row_index2);
+    void ArrayMatrix<T>::AddToRow(int row_index1, int row_index2, T mul) const {
+        int len = this->GetSize();
+        for (int i = 0; i < len; i++) {
+            (*this)[i][row_index1] += mul * this->Get(i, row_index2);
         }
-        return new_matrix;
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::AddToColNew(index_type col_index1, index_type col_index2) const {
-        auto new_matrix = new ArrayMatrix<T>(*this);
-        index_type len = this->GetSize();
-        for (index_type i = 0; i < len; i++) {
-            (*new_matrix)[col_index1][i] += this->Get(col_index2, i);
+    void ArrayMatrix<T>::AddToCol(int col_index1, int col_index2, T mul) const {
+        int len = this->GetSize();
+        for (int i = 0; i < len; i++) {
+            (*this)[col_index1][i] += mul * this->Get(col_index2, i);
         }
-        return new_matrix;
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::ExchangeRowsNew(index_type row_index1, index_type row_index2) const {
-        auto new_matrix = new ArrayMatrix<T>(*this);
-        index_type len = this->GetSize();
-        for (index_type i = 0; i < len; i++) {
-            (*new_matrix)[i][row_index1] = this->Get(i, row_index2);
-            (*new_matrix)[i][row_index2] = this->Get(i, row_index1);
+    void ArrayMatrix<T>::ExchangeRows(int row_index1, int row_index2) {
+        int len = this->GetSize();
+        T value;
+        for (int i = 0; i < len; i++) {
+            value = (*this)[i][row_index1];
+            (*this)[i][row_index1] = (*this)[i][row_index2];
+            (*this)[i][row_index2] = value;
         }
-        return new_matrix;
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::ExchangeColsNew(index_type col_index1, index_type col_index2) const {
-        auto new_matrix = new ArrayMatrix<T>(*this);
-        index_type len = this->GetSize();
-        for (index_type i = 0; i < len; i++) {
-            (*new_matrix)[col_index1][i] = this->Get(col_index2, i);
-            (*new_matrix)[col_index2][i] = this->Get(col_index1, i);
+    void ArrayMatrix<T>::ExchangeCols(int col_index1, int col_index2) {
+        int len = this->GetSize();
+        T value;
+        for (int i = 0; i < len; i++) {
+            value = (*this)[col_index1][i];
+            (*this)[col_index1][i] = (*this)[col_index2][i];
+            (*this)[col_index2][i] = value;
         }
-        return new_matrix;
     }
 
     template<class T>
-    void ArrayMatrix<T>::Set(index_type col_index, index_type row_index, T value) {
+    void ArrayMatrix<T>::Set(int col_index, int row_index, T value) {
         if (col_index < 0 || size_ <= col_index ||
             row_index < 0 || size_ <= row_index) {
             throw IndexOutOfRangeError("IndexOutOfRangeError", __FILE__, __func__, __LINE__);
@@ -244,19 +236,19 @@ namespace my_namespace {
     }
 
     template<class T>
-    ISequence<T> &ArrayMatrix<T>::operator[](index_type col_index) {
+    ISequence<T> &ArrayMatrix<T>::operator[](int col_index) {
         return *((*(cols_))[col_index]);
     }
 
     template<class T>
-    ISequence<T> &ArrayMatrix<T>::operator[](index_type col_index) const {
+    ISequence<T> &ArrayMatrix<T>::operator[](int col_index) const {
         return *((*(cols_))[col_index]);
     }
 
     template<class T>
     void ArrayMatrix<T>::MapThis(T (*func)(T)) {
         ISequence<T> *col;
-        for (index_type i = 0; i < size_; i++) {
+        for (int i = 0; i < size_; i++) {
             col = cols_[0][i]->Map(func);
             delete cols_[0][i];
             cols_[0][i] = col;
@@ -279,14 +271,14 @@ namespace my_namespace {
 
     template<class T>
     ArrayMatrix<T> &ArrayMatrix<T>::operator*(const IMatrix<T> &matrix) const {
-        index_type len = this->GetSize();
+        int len = this->GetSize();
         auto new_matrix = new ArrayMatrix<T>(this->GetSize());
         T value1;
         T value2;
-        for (index_type col_index = 0; col_index < len; col_index++) {
-            for (index_type row_index = 0; row_index < len; row_index++) {
+        for (int col_index = 0; col_index < len; col_index++) {
+            for (int row_index = 0; row_index < len; row_index++) {
                 (*new_matrix)[col_index][row_index] = T();
-                for (index_type k = 0; k < len; k++) {
+                for (int k = 0; k < len; k++) {
                     value1 = this->Get(col_index, k);
                     value2 = matrix.Get(k, row_index);
 //                    std::cout << "value1 = " << value1 << "; value2 = " << value2 << "; col_index = " << col_index << "; row_index = " << row_index << "; k = " << k << std::endl;
@@ -307,9 +299,9 @@ namespace my_namespace {
 
     template<class T>
     void ArrayMatrix<T>::operator+=(const IMatrix<T> &matrix) {
-        index_type len = this->GetSize();
-        for (index_type i = 0; i < len; i++) {
-            for (index_type j = 0; j < len; j++) {
+        int len = this->GetSize();
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
                 this->Set(i, j, this->Get(i, j) + matrix.Get(i, j));
             }
         }
@@ -317,9 +309,9 @@ namespace my_namespace {
 
     template<class T>
     void ArrayMatrix<T>::operator-=(const IMatrix<T> &matrix) {
-        index_type len = this->GetSize();
-        for (index_type i = 0; i < len; i++) {
-            for (index_type j = 0; j < len; j++) {
+        int len = this->GetSize();
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
                 this->Set(i, j, this->Get(i, j) - matrix.Get(i, j));
             }
         }
@@ -341,8 +333,8 @@ namespace my_namespace {
     template<class T>
     ArrayMatrix<T> *ArrayMatrix<T>::Clone() const {
         auto new_matrix = new ArrayMatrix<T>(this->GetSize());
-        for (index_type i = 0; i < size_; i++) {
-            for (index_type j = 0; j < size_; j++) {
+        for (int i = 0; i < size_; i++) {
+            for (int j = 0; j < size_; j++) {
                 new_matrix->Set(i, j, this->Get(i, j));
             }
         }

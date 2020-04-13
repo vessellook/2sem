@@ -16,10 +16,10 @@ using simple_ui::show;
 
 template <class T>
 void show_pointers(IMatrix<T>& matrix, const std::string& name = "") {
-    index_type len = matrix.GetSize();
+    int len = matrix.GetSize();
     cout<<"start show pointer of " << name << std::endl;
-    for(index_type i = 0; i < len; i++) {
-        for(index_type j = 0; j < len; j++) {
+    for(int i = 0; i < len; i++) {
+        for(int j = 0; j < len; j++) {
             cout << &(matrix[i][j]) << std::endl;
         }
     }
@@ -29,7 +29,7 @@ void show_pointers(IMatrix<T>& matrix, const std::string& name = "") {
 
 
 template<class T>
-bool check_size(const IMatrix<T> *matrix, index_type expected_size, int test_num) {
+bool check_size(const IMatrix<T> *matrix, int expected_size, int test_num) {
     if (matrix->GetSize() != expected_size) {
         cout << "TEST " << test_num << ": "
              << "FAILED: expected matrix size " << expected_size

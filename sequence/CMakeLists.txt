@@ -13,4 +13,4 @@ add_executable(test_sequence tests/test_sequence.cpp)
 
 add_executable(test_matrix tests/test_matrix.cpp)
 
-#add_executable(other .test.cpp)
+add_executable(other .test.cpp)

@@ -8,7 +8,7 @@ using namespace std;
 using namespace my_namespace;
 
 template<class T>
-bool check_size(const DynamicArray<T> *array, index_type expected_size, int test_num) {
+bool check_size(const DynamicArray<T> *array, int expected_size, int test_num) {
     if (array->GetSize() != expected_size) {
         cout << "TEST " << test_num << ": "<< "FAILED: expected array size " << expected_size << ", but got " << array->GetSize() << endl;
         return false;
@@ -20,13 +20,13 @@ bool check_size(const DynamicArray<T> *array, index_type expected_size, int test
 }
 
 template<class T>
-bool check_item_with_function_Get(const DynamicArray<T> *array, index_type index, T expected_value, int test_num) {
+bool check_item_with_function_Get(const DynamicArray<T> *array, int index, T expected_value, int test_num) {
     T value = array->Get(index);
     return check_value(value, expected_value, test_num);
 }
 
 template<class T>
-bool check_item_with_subscript_operator(DynamicArray<T> *array, index_type index, T expected_value, int test_num) {
+bool check_item_with_subscript_operator(DynamicArray<T> *array, int index, T expected_value, int test_num) {
     T value = (*array)[index];
     return check_value(value, expected_value, test_num);
 }

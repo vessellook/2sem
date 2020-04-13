@@ -3,18 +3,18 @@
 #include "macro_and_functions_for_tests.h"
 #include "../common/my_functions.h"
 
-//#include "../sequence/array_sequence.h"
-//#define TestSequence ArraySequence
+#include "../sequence/array_sequence.h"
+#define TestSequence ArraySequence
 
-#include "../sequence/linked_list_sequence.h"
-#define TestSequence LinkedListSequence
+//#include "../sequence/linked_list_sequence.h"
+//#define TestSequence LinkedListSequence
 
 using namespace std;
 using namespace my_namespace;
 
 template <class T>
 void show_pointers(ISequence<T>& sequence, const string& name = "") {
-    index_type len = sequence.GetLength();
+    int len = sequence.GetLength();
     cout << "start of " << name << endl;
     for(int i = 0; i < len; i++) {
         cout << &(sequence[i]) << endl;
@@ -25,7 +25,7 @@ void show_pointers(ISequence<T>& sequence, const string& name = "") {
 #include "../ui/simple_ui.h"
 using simple_ui::show;
 template<class T>
-bool check_length(const ISequence<T> *sequence, index_type expected_length, int test_num) {
+bool check_length(const ISequence<T> *sequence, int expected_length, int test_num) {
     if (sequence->GetLength() != expected_length) {
         cout << "TEST " << test_num << ": " << "FAILED: expected sequence length " << expected_length << ", but got " << sequence->GetLength() << endl;
         return false;
@@ -37,13 +37,13 @@ bool check_length(const ISequence<T> *sequence, index_type expected_length, int 
 }
 
 template<class T>
-bool check_item_with_function_Get(const ISequence<T> *sequence, index_type index, T expected_value, int test_num) {
+bool check_item_with_function_Get(const ISequence<T> *sequence, int index, T expected_value, int test_num) {
     T value = sequence->Get(index);
     return check_value(value, expected_value, test_num);
 }
 
 template<class T>
-bool check_value_with_subscript_operator(ISequence<T> *sequence, index_type index, T expected_value, int test_num) {
+bool check_value_with_subscript_operator(ISequence<T> *sequence, int index, T expected_value, int test_num) {
     T value = (*sequence)[index];
     return check_value(value, expected_value, test_num);
 }

@@ -10,16 +10,16 @@ namespace my_namespace {
     public:
         virtual ~IMatrix() = default;
 
-        virtual index_type GetSize() const = 0;
+        virtual int GetSize() const = 0;
 
-        virtual T Get(index_type col_index, index_type row_index) const = 0;
+        virtual T Get(int col_index, int row_index) const = 0;
 
         virtual T getNorm() const {
-            index_type len = this->GetSize();
+            int len = this->GetSize();
             T result = 0;
             T value;
-            for(index_type i = 0; i < len; i++) {
-                for(index_type j = 0; j < len; j++) {
+            for(int i = 0; i < len; i++) {
+                for(int j = 0; j < len; j++) {
                     value = this->Get(i, j);
                     result += value * value;
                 }
@@ -33,21 +33,21 @@ namespace my_namespace {
 
         virtual IMatrix<T> *TransposeNew() const = 0;
 
-        virtual IMatrix<T> *MulRowNew(index_type row_index, T scalar) const = 0;
+        virtual void MulRow(int row_index, T scalar) = 0;
 
-        virtual IMatrix<T> *MulColNew(index_type col_index, T scalar) const = 0;
+        virtual void MulCol(int col_index, T scalar) = 0;
 
-        virtual IMatrix<T> *MinorNew(index_type col_index, index_type row_index) const = 0;
+        virtual IMatrix<T> *MinorNew(int col_index, int row_index) const = 0;
 
-        virtual IMatrix<T> *AddToRowNew(index_type row_index1, index_type row_index2) const = 0;
+        virtual void AddToRow(int row_index1, int row_index2, T mul) const = 0;
 
-        virtual IMatrix<T> *AddToColNew(index_type col_index1, index_type col_index2) const = 0;
+        virtual void AddToCol(int col_index1, int col_index2, T mul) const = 0;
 
-        virtual IMatrix<T> *ExchangeRowsNew(index_type row_index1, index_type row_index2) const = 0;
+        virtual void ExchangeRows(int row_index1, int row_index2) = 0;
 
-        virtual IMatrix<T> *ExchangeColsNew(index_type col_index1, index_type col_index2) const = 0;
+        virtual void ExchangeCols(int col_index1, int col_index2) = 0;
 
-        virtual void Set(index_type col_index, index_type row_index, T value) = 0;
+        virtual void Set(int col_index, int row_index, T value) = 0;
 
         virtual IMatrix<T> &operator*(T scalar) const = 0;
 
@@ -65,8 +65,8 @@ namespace my_namespace {
 
         virtual void operator-=(const IMatrix<T> &matrix) = 0;
 
-        virtual ISequence<T> &operator[](index_type index) = 0;
-        virtual ISequence<T> &operator[](index_type index) const = 0;
+        virtual ISequence<T> &operator[](int index) = 0;
+        virtual ISequence<T> &operator[](int index) const = 0;
     };
 
 }

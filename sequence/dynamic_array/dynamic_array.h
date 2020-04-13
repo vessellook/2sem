@@ -7,37 +7,37 @@ namespace my_namespace {
     template<class T>
     class DynamicArray {
     public:
-        DynamicArray(T *items, index_type count);
+        DynamicArray(T *items, int count);
 
-        explicit DynamicArray(index_type size = 0);
+        explicit DynamicArray(int size = 0);
 
         ~DynamicArray();
 
-        T Get(index_type index) const;
+        T Get(int index) const;
 
         int GetSize() const { return size_; };
 
-        void Set(index_type index, T value);
+        void Set(int index, T value);
 
-        void Resize(index_type new_size);
+        void Resize(int new_size);
 
         DynamicArray<T> *Clone() const;
 
-        T &operator[](index_type index) { return GetRef(index); };
+        T &operator[](int index) { return GetRef(index); };
 
-        T operator[](index_type index) const { return Get(index); };
+        T operator[](int index) const { return Get(index); };
 
     private:
 
-        T &GetRef(index_type index);
+        T &GetRef(int index);
 
         T *c_array_ = nullptr;
-        index_type size_;
+        int size_;
     };
 
 
     template<class T>
-    DynamicArray<T>::DynamicArray(T *items, index_type count) {
+    DynamicArray<T>::DynamicArray(T *items, int count) {
         if (count < 0) {
             throw IndexOutOfRangeError("count < 0", __FILE__, __func__, __LINE__);
         }
@@ -46,7 +46,7 @@ namespace my_namespace {
             if (c_array_ == nullptr) {
                 throw MemoryAllocationError("c_array_ == nullptr", __FILE__, __func__, __LINE__);
             }
-            for (index_type i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
                 c_array_[i] = items[i];
             }
         }
@@ -73,7 +73,7 @@ namespace my_namespace {
     }
 
     template<class T>
-    T DynamicArray<T>::Get(index_type index) const {
+    T DynamicArray<T>::Get(int index) const {
         if (size_ <= index || index < 0) {
             std::string message = "size_ = " + std::to_string(size_) + "; " +
                                   "index = " + std::to_string(index);
@@ -84,7 +84,7 @@ namespace my_namespace {
     }
 
     template<class T>
-    void DynamicArray<T>::Set(index_type index, T value) {
+    void DynamicArray<T>::Set(int index, T value) {
         if (size_ <= index || index < 0) {
             std::string message = "size_ = " + std::to_string(size_)
                                   + "; index = " + std::to_string(index);
@@ -94,7 +94,7 @@ namespace my_namespace {
     }
 
     template<class T>
-    void DynamicArray<T>::Resize(index_type new_size) {
+    void DynamicArray<T>::Resize(int new_size) {
         if (new_size < 0) {
             IndexOutOfRangeError("new_size < 0", __FILE__, __func__, __LINE__);
         }
@@ -111,7 +111,7 @@ namespace my_namespace {
 
 
     template<class T>
-    T &DynamicArray<T>::GetRef(index_type index) {
+    T &DynamicArray<T>::GetRef(int index) {
         if (size_ <= index || index < 0) {
             std::string message = "size_ = " + std::to_string(size_)
                                   + "; index = " + std::to_string(index);
@@ -123,7 +123,7 @@ namespace my_namespace {
     template<class T>
     DynamicArray<T> *DynamicArray<T>::Clone() const {
         auto new_array = new DynamicArray<T>(size_);
-        for (index_type i = 0; i < size_; i++) {
+        for (int i = 0; i < size_; i++) {
             new_array->Set(i, this->Get(i));
         }
         return new_array;
