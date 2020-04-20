@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../config.h"
 #include <string>
 #include <exception>
 
@@ -46,8 +45,8 @@ namespace my_namespace {
                               int line) : MyError(message, file, func, line) {};
     };
 
-    struct ResizeToNegativeSizeError : public MyError {
-        ResizeToNegativeSizeError(const std::string &message,
+    struct resizeToNegativeSizeError : public MyError {
+        resizeToNegativeSizeError(const std::string &message,
                                   const std::string &file,
                                   const std::string &func,
                                   int line) : MyError(message, file, func, line) {};
@@ -60,4 +59,10 @@ namespace my_namespace {
                               int line) : MyError(message, file, func, line) {};
     };
 
+    struct EmptyValueError : public MyError {
+        EmptyValueError(const std::string &message,
+                              const std::string &file,
+                              const std::string &func,
+                              int line) : MyError(message, file, func, line) {};
+    };
 }

@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "../config.h"
 #include "../dynamic_array/dynamic_array.h"
 #include "../linked_list/linked_list.h"
 #include "../sequence/sequence.h"
@@ -12,7 +11,7 @@ namespace simple_ui {
 
     template <class T>
     void show(const my_namespace::ISequence<T> *list, const std::string& name = "") {
-        int length = list->GetLength();
+        int length = list->getLength();
         if(name.empty()) {
             std::cout << "list (length " << length << "): ";
         } else {
@@ -20,14 +19,14 @@ namespace simple_ui {
         }
 
         for (int i = 0; i < length; i++) {
-            std::cout << list->Get(i) << " ";
+            std::cout << list->get(i) << " ";
         }
         std::cout << std::endl << std::endl;
     }
 
     template <class T>
     void show(const my_namespace::IMatrix<T> *matrix, const std::string& name = "") {
-        int size = matrix->GetSize();
+        int size = matrix->getSize();
         if(name.empty()) {
             std::cout << "matrix " << size << "x" << size << std::endl;
         } else {

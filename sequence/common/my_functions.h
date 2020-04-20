@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../config.h"
-
 namespace my_namespace {
 
     template<class T>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../config.h"
 #include "../sequence/sequence.h"
 
 namespace my_namespace {
@@ -10,44 +9,48 @@ namespace my_namespace {
     public:
         virtual ~IMatrix() = default;
 
-        virtual int GetSize() const = 0;
+        virtual int getSize() const = 0;
 
-        virtual T Get(int col_index, int row_index) const = 0;
+        virtual T get(int col_index, int row_index) const = 0;
+
+        virtual T &getRef(int col_index, int row_index) = 0;
 
         virtual T getNorm() const {
-            int len = this->GetSize();
+            int len = this->getSize();
             T result = 0;
             T value;
             for(int i = 0; i < len; i++) {
                 for(int j = 0; j < len; j++) {
-                    value = this->Get(i, j);
+                    value = this->get(i, j);
                     result += value * value;
                 }
             }
             return result;
         }
 
-        virtual IMatrix<T> *Clone() const = 0;
+        virtual IMatrix<T> *clone() const = 0;
 
-        virtual IMatrix<T> *Map(T (*func)(T)) const = 0;
+        virtual IMatrix<T> *map(T (*func)(T)) const = 0;
 
-        virtual IMatrix<T> *TransposeNew() const = 0;
+        virtual IMatrix<T> *transposeNew() const = 0;
 
-        virtual void MulRow(int row_index, T scalar) = 0;
+        virtual void mapThis(T (*func)(T)) = 0;
 
-        virtual void MulCol(int col_index, T scalar) = 0;
+        virtual void mulRow(int row_index, T scalar) = 0;
 
-        virtual IMatrix<T> *MinorNew(int col_index, int row_index) const = 0;
+        virtual void mulCol(int col_index, T scalar) = 0;
 
-        virtual void AddToRow(int row_index1, int row_index2, T mul) const = 0;
+        virtual IMatrix<T> *minorNew(int col_index, int row_index) const = 0;
 
-        virtual void AddToCol(int col_index1, int col_index2, T mul) const = 0;
+        virtual void addToRow(int row_index1, int row_index2, T mul) const = 0;
 
-        virtual void ExchangeRows(int row_index1, int row_index2) = 0;
+        virtual void addToCol(int col_index1, int col_index2, T mul) const = 0;
 
-        virtual void ExchangeCols(int col_index1, int col_index2) = 0;
+        virtual void exchangeRows(int row_index1, int row_index2) = 0;
 
-        virtual void Set(int col_index, int row_index, T value) = 0;
+        virtual void exchangeCols(int col_index1, int col_index2) = 0;
+
+        virtual void set(int col_index, int row_index, T value) = 0;
 
         virtual IMatrix<T> &operator*(T scalar) const = 0;
 

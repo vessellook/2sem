@@ -14,7 +14,7 @@ using namespace my_namespace;
 
 template <class T>
 void show_pointers(ISequence<T>& sequence, const string& name = "") {
-    int len = sequence.GetLength();
+    int len = sequence.getLength();
     cout << "start of " << name << endl;
     for(int i = 0; i < len; i++) {
         cout << &(sequence[i]) << endl;
@@ -26,19 +26,19 @@ void show_pointers(ISequence<T>& sequence, const string& name = "") {
 using simple_ui::show;
 template<class T>
 bool check_length(const ISequence<T> *sequence, int expected_length, int test_num) {
-    if (sequence->GetLength() != expected_length) {
-        cout << "TEST " << test_num << ": " << "FAILED: expected sequence length " << expected_length << ", but got " << sequence->GetLength() << endl;
+    if (sequence->getLength() != expected_length) {
+        cout << "TEST " << test_num << ": " << "FAILED: expected sequence length " << expected_length << ", but got " << sequence->getLength() << endl;
         return false;
     }
 #ifdef SHOW_TEST_PASSED
-    cout << "TEST " << test_num << ": " << "PASSED: got sequence length " << sequence->GetLength() << endl;
+    cout << "TEST " << test_num << ": " << "PASSED: got sequence length " << sequence->getLength() << endl;
 #endif
     return true;
 }
 
 template<class T>
-bool check_item_with_function_Get(const ISequence<T> *sequence, int index, T expected_value, int test_num) {
-    T value = sequence->Get(index);
+bool check_item_with_function_get(const ISequence<T> *sequence, int index, T expected_value, int test_num) {
+    T value = sequence->get(index);
     return check_value(value, expected_value, test_num);
 }
 
@@ -55,43 +55,43 @@ int main() {
     ASSERT(check_length(sequence1, 0, task_num));
     print_test_separator();
 
-    sequence1->Append(3);
-    sequence1->Append(2);
-    sequence1->Append(1);
+    sequence1->append(3);
+    sequence1->append(2);
+    sequence1->append(1);
 
     task_num = 1;
     ASSERT(check_length(sequence1, 3, task_num));
     print_test_separator();
 
     task_num++;
-    ASSERT(check_value(sequence1->GetFirst(), 1, task_num));
+    ASSERT(check_value(sequence1->getFirst(), 1, task_num));
     print_test_separator();
 
     task_num++;
-    ASSERT(check_value(sequence1->GetLast(), 3, task_num));
+    ASSERT(check_value(sequence1->getLast(), 3, task_num));
     print_test_separator();
 
     task_num++;
-    ASSERT(check_item_with_function_Get(sequence1, 0, 1, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 1, 2, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 2, 3, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 0, 1, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 1, 2, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 2, 3, task_num));
     print_test_separator();
 
-    sequence1->Prepend(5);
-    sequence1->Prepend(6);
-    sequence1->InsertAt(4, 3);
+    sequence1->prepend(5);
+    sequence1->prepend(6);
+    sequence1->insertAt(4, 3);
 
     task_num = 5;
     ASSERT(check_length(sequence1, 6, task_num));
     print_test_separator();
 
     task_num++;
-    ASSERT(check_item_with_function_Get(sequence1, 0, 1, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 1, 2, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 2, 3, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 3, 4, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 4, 5, task_num));
-    ASSERT(check_item_with_function_Get(sequence1, 5, 6, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 0, 1, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 1, 2, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 2, 3, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 3, 4, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 4, 5, task_num));
+    ASSERT(check_item_with_function_get(sequence1, 5, 6, task_num));
     print_test_separator();
 
     int *items = new int[5];
@@ -110,12 +110,12 @@ int main() {
     task_num++;
     ASSERT(check_value_with_subscript_operator(sequence2, 0, 1, task_num));
     ASSERT(check_value_with_subscript_operator(sequence2, 1, 2, task_num));
-    ASSERT(check_item_with_function_Get(sequence2, 2, 4, task_num));
-    ASSERT(check_item_with_function_Get(sequence2, 3, 8, task_num));
-    ASSERT(check_item_with_function_Get(sequence2, 4, 16, task_num));
+    ASSERT(check_item_with_function_get(sequence2, 2, 4, task_num));
+    ASSERT(check_item_with_function_get(sequence2, 3, 8, task_num));
+    ASSERT(check_item_with_function_get(sequence2, 4, 16, task_num));
     print_test_separator();
 
-    ISequence<int>* sequence3 = sequence2->Clone();
+    ISequence<int>* sequence3 = sequence2->clone();
     show_pointers(*sequence1);
     show_pointers(*sequence2);
     show_pointers(*sequence3);
@@ -125,9 +125,9 @@ int main() {
     ASSERT(check_length(sequence3, 5, task_num++));
     print_test_separator();
 
-    ASSERT(check_item_with_function_Get(sequence3, 0, 1, task_num));
-    ASSERT(check_item_with_function_Get(sequence3, 1, 2, task_num));
-    ASSERT(check_item_with_function_Get(sequence3, 2, 4, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 0, 1, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 1, 2, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 2, 4, task_num));
     ASSERT(check_value_with_subscript_operator(sequence3, 3, 8, task_num));
     ASSERT(check_value_with_subscript_operator(sequence3, 4, 16, task_num));
     print_test_separator();
@@ -144,40 +144,40 @@ int main() {
     print_test_separator();
 
     task_num++;
-    ASSERT(check_item_with_function_Get(sequence3, 0, 7, task_num));
-    ASSERT(check_item_with_function_Get(sequence3, 1, 8, task_num));
-    ASSERT(check_item_with_function_Get(sequence3, 2, 9, task_num));
-    ASSERT(check_item_with_function_Get(sequence3, 3, 10, task_num));
-    ASSERT(check_item_with_function_Get(sequence3, 4, 11, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 0, 7, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 1, 8, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 2, 9, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 3, 10, task_num));
+    ASSERT(check_item_with_function_get(sequence3, 4, 11, task_num));
     print_test_separator();
 
-    ISequence<int>* sequence4 = sequence1->Concat(*sequence3);
+    ISequence<int>* sequence4 = sequence1->concat(*sequence3);
     delete sequence1;
     show(sequence4);
     task_num = 13;
     ASSERT(check_length(sequence4, 11, task_num++));
     print_test_separator();
 
-    ASSERT(check_item_with_function_Get(sequence4, 0, 1, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 1, 2, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 2, 3, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 3, 4, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 4, 5, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 5, 6, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 6, 7, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 7, 8, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 8, 9, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 9, 10, task_num));
-    ASSERT(check_item_with_function_Get(sequence4, 10, 11, task_num++));
+    ASSERT(check_item_with_function_get(sequence4, 0, 1, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 1, 2, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 2, 3, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 3, 4, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 4, 5, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 5, 6, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 6, 7, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 7, 8, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 8, 9, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 9, 10, task_num));
+    ASSERT(check_item_with_function_get(sequence4, 10, 11, task_num++));
     print_test_separator();
     delete sequence3;
     delete sequence4;
 
     ISequence<int>* sequence5 = new TestSequence<int>();
-    sequence5->Append(2);
+    sequence5->append(2);
 
     MulWrapper<int>::setValue(3);
-    ISequence<int>* sequence6 = sequence5->Map(MulWrapper<int>::Mul);
+    ISequence<int>* sequence6 = sequence5->map(MulWrapper<int>::Mul);
     show(sequence6);
 
     cout << "FINISH";

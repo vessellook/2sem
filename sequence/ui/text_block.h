@@ -22,10 +22,10 @@ public:
     TextBlock(const ISequence<char>& text_line) { Create(text_line); };
     virtual ~TextBlock();
 
-    int GetWidth() const { return width_; };
-    int GetHeight() const { return height_; };
-    char Get(int line_num, int column_num) const { return (*((*lines_)[line_num]))[column_num]; };
-    TextBlock *Clone() const { return new TextBlock(*this); };
+    int getWidth() const { return width_; };
+    int getHeight() const { return height_; };
+    char get(int line_num, int column_num) const { return (*((*lines_)[line_num]))[column_num]; };
+    TextBlock *clone() const { return new TextBlock(*this); };
 
     void Create(const char* text_line, int N);
     void Create(const ISequence<char>& text_line);
@@ -41,10 +41,10 @@ protected:
     ISequence<ISequence<char>*>* lines_ = nullptr;
 };
 
-TextBlock::TextBlock(const TextBlock &text_block): width_(text_block.GetWidth()), height_(text_block.GetHeight()) {
+TextBlock::TextBlock(const TextBlock &text_block): width_(text_block.getWidth()), height_(text_block.getHeight()) {
     lines_ = new LinkedListSequence<ISequence<char>*>();
     for(int i = 0; i < height_; i++) {
-        lines_->Prepend((*(text_block.lines_))[i]->Clone());
+        lines_->prepend((*(text_block.lines_))[i]->clone());
     }
 }
 
@@ -60,14 +60,14 @@ void TextBlock::Create(const char *text_line, int N) {
     width_ = N;
     height_ = 1;
     lines_ = new LinkedListSequence<ISequence<char>*>();
-    lines_->Prepend(new ArraySequence<char>(text_line, N));
+    lines_->prepend(new ArraySequence<char>(text_line, N));
 }
 
 void TextBlock::Create(const ISequence<char> &text_line) {
-    width_ = text_line.GetLength();
+    width_ = text_line.getLength();
     height_ = 1;
     lines_ = new LinkedListSequence<ISequence<char>*>();
-    lines_->Prepend(new ArraySequence<char>(text_line));
+    lines_->prepend(new ArraySequence<char>(text_line));
 }
 
 void TextBlock::Add(const TextBlock &text_block) {
@@ -80,26 +80,26 @@ void TextBlock::Add(const TextBlock &text_block) {
 }
 
 void TextBlock::Add(const ISequence<char> &text_line) {
-    lines_->Prepend(text_line.Clone());
+    lines_->prepend(text_line.clone());
 }
 
 void TextBlock::Add(const char *text_line, int N) {
-    lines_->Prepend(new ArraySequence<char>(text_line, N));
+    lines_->prepend(new ArraySequence<char>(text_line, N));
 }
 
 void TextBlock::Extend(const TextBlock &text_block) {
     for(int i = 0; i < height_; i++) {
         for(int j = width_; j < width_ + text_block.width_; j++) {
-            (*lines_)[i]->Prepend(text_block.Get(i, j));
+            (*lines_)[i]->prepend(text_block.get(i, j));
         }
     }
     width_ += text_block.width_;
 }
 
 std::ostream &operator<<(std::ostream &os, const TextBlock &text_block) {
-    for (int i = 0; i < height_; i++) {
-        for(int j = 0; j < width_; j++) {
-           os << (*((*(text_block.lines_))[i]))[j];
+    for (int i = 0; i < text_block.getHeight(); i++) {
+        for(int j = 0; j < text_block.getHeight(); j++) {
+           os << text_block.lines_->getRef(i)->getRef(j);
         }
         os << std::endl;
     }
