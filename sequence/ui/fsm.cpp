@@ -6,37 +6,14 @@
 
 using namespace std;
 
-string identity(char chr) { return string(1, chr); }
+const unsigned FSM::start_state = 0;
 
-string empty(char) { return ""; }
-
-bool is_space(char chr) { return chr == ' '; }
-
-bool is_digit(char chr) { return '0' <= chr && chr <= '9'; }
-
-bool is_letter(char chr) { return ('a' <= chr && chr <= 'z') || ('A' <= chr && chr <= 'Z'); }
-
-bool is_letter_or_digit(char chr) { return ('a' <= chr && chr <= 'z') || ('A' <= chr && chr <= 'Z') || ('0' <= chr && chr <= '9'); }
-
-bool is_plus(char chr) { return chr == '+'; }
-
-bool is_minus(char chr) { return chr == '-'; }
-
-bool is_asterisk(char chr) { return chr == '*'; }
-
-bool is_slash(char chr) { return chr == '/'; }
-
-int default_number_of_edges = 9;
-
-FSM::FSM(string* buffer) : matrix_(default_number_of_edges),
-                                      word_(""),
-                                      is_halt_(false),
-                                      state_(States::Start), buffer_(buffer) {
-    initDefaultMatrix();
+FSM::FSM(shared_ptr<string> buffer) : matrix_(), is_halt_(false), state_(start_state), buffer_(std::move(buffer)) {
+    word_.clear();
 }
 
 bool FSM::input(char chr) {
-    for(int i = 0; i < matrix_.getSize(); i++) {
+    for(unsigned i = 0; i < matrix_.getLength(); ++i) {
         Edge edge = matrix_[i];
         if(edge.from == state_) {
             if(edge.check(chr)) {
@@ -62,19 +39,17 @@ void FSM::halt() {
 string FSM::restart() {
     auto result = word_;
     is_halt_ = false;
-    word_ = "";
-    state_ = States::Start;
+    word_.clear();
+    buffer_->clear();
+    state_ = start_state;
     return result;
 }
 
-void FSM::initDefaultMatrix() {
-    matrix_.set(0, Edge(States::Start, States::Start, is_space, empty));
-    matrix_.set(1, Edge(States::Start, States::Number, is_digit, identity));
-    matrix_.set(2, Edge(States::Number, States::Number, is_digit, identity));
-    matrix_.set(3, Edge(States::Start, States::Word, is_letter, identity));
-    matrix_.set(4, Edge(States::Word, States::Word, is_letter_or_digit, identity));
-    matrix_.set(5, Edge(States::Start, States::Plus, is_plus, identity));
-    matrix_.set(6, Edge(States::Start, States::Minus, is_minus, identity));
-    matrix_.set(7, Edge(States::Start, States::Asterisk, is_asterisk, identity));
-    matrix_.set(8, Edge(States::Start, States::Slash, is_slash, identity));
+void FSM::setEdge(unsigned from, unsigned to, bool(*check)(char), string(*convert)(char)) {
+    matrix_.prepend(Edge(from, to, check, convert));
 }
+
+void FSM::setEdge(Edge edge) {
+    matrix_.prepend(edge);
+}
+

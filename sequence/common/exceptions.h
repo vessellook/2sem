@@ -9,7 +9,7 @@ namespace my_namespace {
         std::string message_;
         std::string file_;
         std::string func_;
-        int line_;
+        unsigned line_;
 
         explicit MyError(const std::string &message) {
             message_ = message;
@@ -18,7 +18,7 @@ namespace my_namespace {
         MyError(const std::string &message,
                 const std::string &file,
                 const std::string &func,
-                int line) {
+                unsigned line) {
             message_ = message;
             file_ = file;
             func_ = func;
@@ -35,34 +35,34 @@ namespace my_namespace {
         IndexOutOfRangeError(const std::string &message,
                              const std::string &file,
                              const std::string &func,
-                             int line) : MyError(message, file, func, line) {};
+                             unsigned line) : MyError(message, file, func, line) {};
     };
 
     struct MemoryAllocationError : public MyError {
         MemoryAllocationError(const std::string &message,
                               const std::string &file,
                               const std::string &func,
-                              int line) : MyError(message, file, func, line) {};
+                              unsigned line) : MyError(message, file, func, line) {};
     };
 
     struct resizeToNegativeSizeError : public MyError {
         resizeToNegativeSizeError(const std::string &message,
                                   const std::string &file,
                                   const std::string &func,
-                                  int line) : MyError(message, file, func, line) {};
+                                  unsigned line) : MyError(message, file, func, line) {};
     };
 
     struct ZeroSizeOfMatrixError : public MyError {
         ZeroSizeOfMatrixError(const std::string &message,
                               const std::string &file,
                               const std::string &func,
-                              int line) : MyError(message, file, func, line) {};
+                              unsigned line) : MyError(message, file, func, line) {};
     };
 
     struct EmptyValueError : public MyError {
         EmptyValueError(const std::string &message,
                               const std::string &file,
                               const std::string &func,
-                              int line) : MyError(message, file, func, line) {};
+                              unsigned line) : MyError(message, file, func, line) {};
     };
 }

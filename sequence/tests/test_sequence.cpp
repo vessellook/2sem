@@ -3,29 +3,29 @@
 #include "macro_and_functions_for_tests.h"
 #include "../common/my_functions.h"
 
-#include "../sequence/array_sequence.h"
-#define TestSequence ArraySequence
+//#include "../sequence/array_sequence.h"
+//#define TestSequence ArraySequence
 
-//#include "../sequence/linked_list_sequence.h"
-//#define TestSequence LinkedListSequence
+#include "../sequence/linked_list_sequence.h"
+#define TestSequence LinkedListSequence
 
 using namespace std;
 using namespace my_namespace;
 
 template <class T>
 void show_pointers(ISequence<T>& sequence, const string& name = "") {
-    int len = sequence.getLength();
+    unsigned len = sequence.getLength();
     cout << "start of " << name << endl;
-    for(int i = 0; i < len; i++) {
+    for(unsigned i = 0; i < len; ++i) {
         cout << &(sequence[i]) << endl;
     }
-    cout << "start of " << name << endl;
+    cout << "end of " << name << endl;
 }
 
 #include "../ui/simple_ui.h"
 using simple_ui::show;
 template<class T>
-bool check_length(const ISequence<T> *sequence, int expected_length, int test_num) {
+bool check_length(const ISequence<T> *sequence, unsigned expected_length, unsigned test_num) {
     if (sequence->getLength() != expected_length) {
         cout << "TEST " << test_num << ": " << "FAILED: expected sequence length " << expected_length << ", but got " << sequence->getLength() << endl;
         return false;
@@ -37,13 +37,13 @@ bool check_length(const ISequence<T> *sequence, int expected_length, int test_nu
 }
 
 template<class T>
-bool check_item_with_function_get(const ISequence<T> *sequence, int index, T expected_value, int test_num) {
+bool check_item_with_function_get(const ISequence<T> *sequence, unsigned index, T expected_value, unsigned test_num) {
     T value = sequence->get(index);
     return check_value(value, expected_value, test_num);
 }
 
 template<class T>
-bool check_value_with_subscript_operator(ISequence<T> *sequence, int index, T expected_value, int test_num) {
+bool check_value_with_subscript_operator(ISequence<T> *sequence, unsigned index, T expected_value, unsigned test_num) {
     T value = (*sequence)[index];
     return check_value(value, expected_value, test_num);
 }
@@ -51,7 +51,7 @@ bool check_value_with_subscript_operator(ISequence<T> *sequence, int index, T ex
 int main() {
 
     ISequence<int>* sequence1 = new TestSequence<int>();
-    int task_num = 0;
+    unsigned task_num = 0;
     ASSERT(check_length(sequence1, 0, task_num));
     print_test_separator();
 
@@ -63,15 +63,15 @@ int main() {
     ASSERT(check_length(sequence1, 3, task_num));
     print_test_separator();
 
-    task_num++;
+    ++task_num;
     ASSERT(check_value(sequence1->getFirst(), 1, task_num));
     print_test_separator();
 
-    task_num++;
+    ++task_num;
     ASSERT(check_value(sequence1->getLast(), 3, task_num));
     print_test_separator();
 
-    task_num++;
+    ++task_num;
     ASSERT(check_item_with_function_get(sequence1, 0, 1, task_num));
     ASSERT(check_item_with_function_get(sequence1, 1, 2, task_num));
     ASSERT(check_item_with_function_get(sequence1, 2, 3, task_num));
@@ -85,7 +85,7 @@ int main() {
     ASSERT(check_length(sequence1, 6, task_num));
     print_test_separator();
 
-    task_num++;
+    ++task_num;
     ASSERT(check_item_with_function_get(sequence1, 0, 1, task_num));
     ASSERT(check_item_with_function_get(sequence1, 1, 2, task_num));
     ASSERT(check_item_with_function_get(sequence1, 2, 3, task_num));
@@ -107,7 +107,7 @@ int main() {
     ASSERT(check_length(sequence2, 5, task_num));
     print_test_separator();
 
-    task_num++;
+    ++task_num;
     ASSERT(check_value_with_subscript_operator(sequence2, 0, 1, task_num));
     ASSERT(check_value_with_subscript_operator(sequence2, 1, 2, task_num));
     ASSERT(check_item_with_function_get(sequence2, 2, 4, task_num));
@@ -122,7 +122,7 @@ int main() {
     delete sequence2;
 
     task_num = 9;
-    ASSERT(check_length(sequence3, 5, task_num++));
+    ASSERT(check_length(sequence3, 5, ++task_num));
     print_test_separator();
 
     ASSERT(check_item_with_function_get(sequence3, 0, 1, task_num));
@@ -143,7 +143,7 @@ int main() {
     ASSERT(check_length(sequence3, 5, task_num));
     print_test_separator();
 
-    task_num++;
+    ++task_num;
     ASSERT(check_item_with_function_get(sequence3, 0, 7, task_num));
     ASSERT(check_item_with_function_get(sequence3, 1, 8, task_num));
     ASSERT(check_item_with_function_get(sequence3, 2, 9, task_num));
@@ -153,9 +153,9 @@ int main() {
 
     ISequence<int>* sequence4 = sequence1->concat(*sequence3);
     delete sequence1;
-    show(sequence4);
+//    show(sequence4);
     task_num = 13;
-    ASSERT(check_length(sequence4, 11, task_num++));
+    ASSERT(check_length(sequence4, 11, ++task_num));
     print_test_separator();
 
     ASSERT(check_item_with_function_get(sequence4, 0, 1, task_num));
@@ -168,7 +168,7 @@ int main() {
     ASSERT(check_item_with_function_get(sequence4, 7, 8, task_num));
     ASSERT(check_item_with_function_get(sequence4, 8, 9, task_num));
     ASSERT(check_item_with_function_get(sequence4, 9, 10, task_num));
-    ASSERT(check_item_with_function_get(sequence4, 10, 11, task_num++));
+    ASSERT(check_item_with_function_get(sequence4, 10, 11, ++task_num));
     print_test_separator();
     delete sequence3;
     delete sequence4;
@@ -178,8 +178,10 @@ int main() {
 
     MulWrapper<int>::setValue(3);
     ISequence<int>* sequence6 = sequence5->map(MulWrapper<int>::Mul);
-    show(sequence6);
+//    show(sequence6);
+    delete sequence6;
 
+    TestSequence<shared_ptr<TestSequence<int>>> sequence7;
     cout << "FINISH";
     return 0;
 }

@@ -2,11 +2,11 @@
 
 #include "macro_and_functions_for_tests.h"
 
-#include "../matrix/array_matrix.h"
-#define TestMatrix ArrayMatrix
+//#include "../matrix/array_matrix.h"
+//#define TestMatrix ArrayMatrix
 
-//#include "../matrix/list_matrix.h"
-//#define TestMatrix ListMatrix
+#include "../matrix/list_matrix.h"
+#define TestMatrix ListMatrix
 
 using namespace std;
 using namespace my_namespace;
@@ -16,10 +16,10 @@ using simple_ui::show;
 
 template <class T>
 void show_pointers(IMatrix<T>& matrix, const std::string& name = "") {
-    int len = matrix.getSize();
+    unsigned len = matrix.getSize();
     cout<<"start show pointer of " << name << std::endl;
-    for(int i = 0; i < len; i++) {
-        for(int j = 0; j < len; j++) {
+    for(unsigned i = 0; i < len; ++i) {
+        for(unsigned j = 0; j < len; ++j) {
             cout << &(matrix[i][j]) << std::endl;
         }
     }
@@ -29,7 +29,7 @@ void show_pointers(IMatrix<T>& matrix, const std::string& name = "") {
 
 
 template<class T>
-bool check_size(const IMatrix<T> *matrix, int expected_size, int test_num) {
+bool check_size(const IMatrix<T> *matrix, unsigned expected_size, unsigned test_num) {
     if (matrix->getSize() != expected_size) {
         cout << "TEST " << test_num << ": "
              << "FAILED: expected matrix size " << expected_size
@@ -43,12 +43,12 @@ bool check_size(const IMatrix<T> *matrix, int expected_size, int test_num) {
 }
 
 int main() {
-    int test_num = 0;
+    unsigned test_num = 0;
 
     IMatrix<int>* matrix1 = new TestMatrix<int>(3);
 
     test_num = 0;
-    ASSERT(check_size(matrix1, 3, test_num++));
+    ASSERT(check_size(matrix1, 3, ++test_num));
     print_test_separator();
 
     (*matrix1)[0][0] = 1;
@@ -56,13 +56,13 @@ int main() {
     (*matrix1)[1][1] = 3;
     (*matrix1)[0][1] = 4;
 
-    ASSERT(check_size(matrix1, 3, test_num++));
+    ASSERT(check_size(matrix1, 3, ++test_num));
     print_test_separator();
 
     ASSERT(check_value((*matrix1)[0][0], 1, test_num));
     ASSERT(check_value((*matrix1)[1][0], 2, test_num));
     ASSERT(check_value(matrix1->get(1, 1), 3, test_num));
-    ASSERT(check_value(matrix1->get(0, 1), 4, test_num++));
+    ASSERT(check_value(matrix1->get(0, 1), 4, ++test_num));
     print_test_separator();
 
     matrix1->set(0, 2, 5);
@@ -71,38 +71,38 @@ int main() {
     matrix1->set(2, 1, 8);
     matrix1->set(2, 0, 9);
 
-    ASSERT(check_size(matrix1, 3, test_num++));
+    ASSERT(check_size(matrix1, 3, ++test_num));
     print_test_separator();
 
     ASSERT(check_value(matrix1->get(2, 0), 9, test_num));
     ASSERT(check_value(matrix1->get(2, 1), 8, test_num));
     ASSERT(check_value(matrix1->get(2, 2), 7, test_num));
     ASSERT(check_value((*matrix1)[1][2], 6, test_num));
-    ASSERT(check_value((*matrix1)[0][2], 5, test_num++));
+    ASSERT(check_value((*matrix1)[0][2], 5, ++test_num));
     print_test_separator();
 
     IMatrix<int>* matrix2 = matrix1->minorNew(1, 2);
 
     test_num = 5;
-    ASSERT(check_size(matrix2, 2, test_num++));
+    ASSERT(check_size(matrix2, 2, ++test_num));
     print_test_separator();
 
     ASSERT(check_value(matrix2->get(0, 0), 1, test_num));
     ASSERT(check_value(matrix2->get(1, 0), 9, test_num));
     ASSERT(check_value(matrix2->get(1, 1), 8, test_num));
-    ASSERT(check_value(matrix2->get(0, 1), 4, test_num++));
+    ASSERT(check_value(matrix2->get(0, 1), 4, ++test_num));
     print_test_separator();
 
     IMatrix<int>* matrix3 = matrix2->transposeNew();
 
     test_num = 7;
-    ASSERT(check_size(matrix2, 2, test_num++));
+    ASSERT(check_size(matrix2, 2, ++test_num));
     print_test_separator();
 
     ASSERT(check_value(matrix3->get(0, 0), 1, test_num));
     ASSERT(check_value(matrix3->get(0, 1), 9, test_num));
     ASSERT(check_value(matrix3->get(1, 1), 8, test_num));
-    ASSERT(check_value(matrix3->get(1, 0), 4, test_num++));
+    ASSERT(check_value(matrix3->get(1, 0), 4, ++test_num));
     print_test_separator();
 
 
@@ -111,13 +111,13 @@ int main() {
     (*matrix4)[0][0];
 
     test_num = 9;
-    ASSERT(check_size(matrix4, 2, test_num++));
+    ASSERT(check_size(matrix4, 2, ++test_num));
     print_test_separator();
     matrix4[0][0];
     ASSERT(check_value(matrix4->get(0, 0), 1, test_num));
     ASSERT(check_value(matrix4->get(1, 0), 9, test_num));
     ASSERT(check_value(matrix4->get(1, 1), 8, test_num));
-    ASSERT(check_value(matrix4->get(0, 1), 4, test_num++));
+    ASSERT(check_value(matrix4->get(0, 1), 4, ++test_num));
     print_test_separator();
 
     show(matrix1, "matrix1");

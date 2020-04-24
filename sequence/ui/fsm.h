@@ -1,23 +1,22 @@
 #pragma once
 
-#include <utility>
+#include <string>
+#include <memory>
 
 #include "../dynamic_array/dynamic_array.h"
-#include "../matrix/array_matrix.h"
-
-using my_namespace::DynamicArray;
+#include"../sequence/array_sequence.h"
 
 class FSM {
     //этот класс я буду использовать для разбора входящих символов в строки
-private:
-    enum class States {Start, Number, Word, Plus, Minus, Asterisk, Slash};
-private:
+public:
+    static const unsigned start_state;
+public:
     struct Edge {
-        States from;
-        States to;
+        unsigned from;
+        unsigned to;
         bool(*check)(char);
-        string(*convert)(char);
-        Edge(States from, States to, bool(*check)(char), string(*convert)(char)) {
+        std::string(*convert)(char);
+        Edge(unsigned from, unsigned to, bool(*check)(char), std::string(*convert)(char)) {
             this->from = from;
             this->to = to;
             this->check = check;
@@ -25,22 +24,21 @@ private:
         }
     };
 private:
-    DynamicArray<Edge> matrix_;
-    States state_;
+    my_namespace::ArraySequence<Edge> matrix_;
+    std::shared_ptr<std::string> buffer_;
     std::string word_;
+    unsigned state_;
     bool is_halt_;
-    shared_ptr<string> buffer_;
 private:
     void halt();
 public:
-    explicit FSM(string*);
+    explicit FSM(std::shared_ptr<std::string>);
     bool input(char);
     bool isHalt() const;
     std::string output() const;
-    string restart();
+    std::string restart();
 
-    void initDefaultMatrix();
-//    void initDefaultSequence();
+    void setEdge(unsigned from, unsigned to, bool(*check)(char), std::string(*convert)(char));
+    void setEdge(Edge edge);
+
 };
-
-extern int default_number_of_states;

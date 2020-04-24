@@ -1,13 +1,15 @@
 #include <iostream>
 
 #include "macro_and_functions_for_tests.h"
-#include "../linked_list/linked_list.h"
+#include "../linked_list/singly_linked_list.h"
+
+#define TestLinkedList SinglyLinkedList
 
 using namespace std;
 using namespace my_namespace;
 
 template<class T>
-bool check_length(const LinkedList<T> *list, int expected_length, int test_num) {
+bool check_length(const TestLinkedList<T> *list, unsigned expected_length, unsigned test_num) {
     if (list->getLength() != expected_length) {
         cout << "TEST " << test_num << ": " << "FAILED: expected list length " << expected_length << ", but got " << list->getLength() << endl;
         return false;
@@ -19,19 +21,19 @@ bool check_length(const LinkedList<T> *list, int expected_length, int test_num) 
 }
 
 template<class T>
-bool check_item_with_get(const LinkedList<T> *list, int index, T expected_value, int test_num) {
+bool check_item_with_get(const TestLinkedList<T> *list, unsigned index, T expected_value, unsigned test_num) {
     T value = list->get(index);
     return check_value(value, expected_value, test_num);
 }
 
 template<class T>
-bool check_item_with_subscript_operator(LinkedList<T> *list, int index, T expected_value, int test_num) {
+bool check_item_with_subscript_operator(TestLinkedList<T> *list, unsigned index, T expected_value, unsigned test_num) {
     T value = (*list)[index];
     return check_value(value, expected_value, test_num);
 }
 
 int main() {
-    auto list1 = new LinkedList<int>();
+    auto list1 = new TestLinkedList<int>();
     ASSERT(check_length(list1, 0, 0));
     print_test_separator();
 
@@ -75,7 +77,7 @@ int main() {
     items[3] = 8;
     items[4] = 16;
 
-    auto list2 = new LinkedList<int>(items, 5);
+    auto list2 = new TestLinkedList<int>(items, 5);
 
     ASSERT(check_length(list2, 5, 7));
     print_test_separator();
@@ -87,7 +89,7 @@ int main() {
     ASSERT(check_item_with_get(list2, 4, 16, 8));
     print_test_separator();
 
-    auto list3 = new LinkedList<int>(*list2);
+    auto list3 = new TestLinkedList<int>(*list2);
     delete list2;
 
     ASSERT(check_length(list3, 5, 9));

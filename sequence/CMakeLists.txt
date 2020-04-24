@@ -15,4 +15,6 @@ add_executable(test_matrix tests/test_matrix.cpp)
 
 add_executable(input_system input_system.cpp ui/fsm.cpp)
 
-add_executable(other .test2.cpp ui/fsm.cpp)
+add_executable(modified_input_system .test2.cpp ui/fsm.cpp)
+
+add_executable(quick_test .quick_test.cpp)

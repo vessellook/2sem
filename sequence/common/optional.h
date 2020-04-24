@@ -1,6 +1,6 @@
 #pragma once
 
-#include "my_exceptions.h"
+#include "exceptions.h"
 
 namespace my_namespace {
     template<class T>

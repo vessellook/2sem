@@ -14,26 +14,24 @@
 
 #define ASSERT(condition) do{if(!(condition)){ abort(); }}while(false)
 
-#define SHOW_TEST_PASSED
+#define SHOW_TEST_PASSED true
 
 
 void print_test_separator() {
-#ifdef SHOW_TEST_PASSED
-    std::cout << std::endl;
-#endif
+if(SHOW_TEST_PASSED) std::cout << std::endl;
 }
 
 template<class T>
-bool check_value(T got_value, T expected_value, int test_num) {
+bool check_value(T got_value, T expected_value, unsigned test_num) {
     if (got_value != expected_value) {
         std::cout << "TEST " << test_num << ": "
                   << "FAILED: expected value " << expected_value
                   << " and got value " << got_value << std::endl;
         return false;
     }
-#ifdef SHOW_TEST_PASSED
+if (SHOW_TEST_PASSED) {
     std::cout << "TEST " << test_num << ": "
               << "PASSED: expected value and got value are equal" << std::endl;
-#endif
+}
     return true;
 }
