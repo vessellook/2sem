@@ -31,27 +31,25 @@ namespace my_namespace {
 
         ArrayMatrix<T> *clone() const override;
 
-        ArrayMatrix<T> *map(T (*func)(T)) const override;
+        ArrayMatrix<T> *transpose() override;
 
-        ArrayMatrix<T> *transposeNew() const override;
+        ArrayMatrix<T> *map(T (*func)(T)) override;
 
-        void mapThis(T (*func)(T)) override;
+        ArrayMatrix<T> *mulRow(unsigned row_index, T scalar) override;
 
-        void mulRow(unsigned row_index, T scalar) override;
+        ArrayMatrix<T> *mulCol(unsigned col_index, T scalar) override;
 
-        void mulCol(unsigned col_index, T scalar) override;
+        ArrayMatrix<T> *getMinor(unsigned col_index, unsigned row_index) const override;
 
-        ArrayMatrix<T> *minorNew(unsigned col_index, unsigned row_index) const override;
+        ArrayMatrix<T> *addToRow(unsigned row_index1, unsigned row_index2, T mul) override;
 
-        void addToRow(unsigned row_index1, unsigned row_index2, T mul) const override;
+        ArrayMatrix<T> *addToCol(unsigned col_index1, unsigned col_index2, T mul) override;
 
-        void addToCol(unsigned col_index1, unsigned col_index2, T mul) const override;
+        ArrayMatrix<T> *exchangeRows(unsigned row_index1, unsigned row_index2) override;
 
-        void exchangeRows(unsigned row_index1, unsigned row_index2) override;
+        ArrayMatrix<T> *exchangeCols(unsigned col_index1, unsigned col_index2) override;
 
-        void exchangeCols(unsigned col_index1, unsigned col_index2) override;
-
-        void set(unsigned col_index, unsigned row_index, T value);
+        ArrayMatrix<T> *set(unsigned col_index, unsigned row_index, T value);
 
         ArrayMatrix<T> &operator*(T scalar) const override;
 
@@ -114,42 +112,41 @@ namespace my_namespace {
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::map(T (*func)(T)) const {
-        auto new_matrix = this->clone();
-        new_matrix->mapThis(func);
-        return new_matrix;
-    }
-
-    template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::transposeNew() const {
+    ArrayMatrix<T> *ArrayMatrix<T>::transpose() {
         unsigned len = this->getSize();
-        auto new_matrix = new ArrayMatrix<T>(len);
+        auto new_cols = *(cols_.clone());
+        for(unsigned i = 0; i < len; i++) {
+            new_cols[i] = shared_ptr<ArraySequence<T>>(cols_[i]->clone());
+        }
         for (unsigned i = 0; i < len; ++i) {
             for (unsigned j = 0; j < len; ++j) {
-                new_matrix->set(i, j, this->get(j, i));
+                new_cols[i]->set(j, this->get(j, i));
             }
         }
-        return new_matrix;
+        cols_ = new_cols;
+        return this;
     }
 
     template<class T>
-    void ArrayMatrix<T>::mulRow(unsigned row_index, T scalar) {
+    ArrayMatrix<T>* ArrayMatrix<T>::mulRow(unsigned row_index, T scalar) {
         unsigned len = this->getSize();
         for (unsigned i = 0; i < len; ++i) {
             (*this)[i][row_index] *= scalar;
         }
+        return this;
     }
 
-    template<class T>
-    void ArrayMatrix<T>::mulCol(unsigned col_index, T scalar) {
+    template <class T>
+    ArrayMatrix<T>* ArrayMatrix<T>::mulCol(unsigned col_index, T scalar) {
         unsigned len = this->getSize();
         for (unsigned i = 0; i < len; ++i) {
             (*this)[col_index][i] *= scalar;
         }
+        return this;
     }
 
     template<class T>
-    ArrayMatrix<T> *ArrayMatrix<T>::minorNew(unsigned col_index, unsigned row_index) const {
+    ArrayMatrix<T> *ArrayMatrix<T>::getMinor(unsigned col_index, unsigned row_index) const {
         unsigned len = size_;
         if (col_index < 0 || len <= col_index ||
             row_index < 0 || len <= row_index) {
@@ -175,23 +172,25 @@ namespace my_namespace {
     }
 
     template<class T>
-    void ArrayMatrix<T>::addToRow(unsigned row_index1, unsigned row_index2, T mul) const {
+    ArrayMatrix<T> *ArrayMatrix<T>::addToRow(unsigned row_index1, unsigned row_index2, T mul) {
         unsigned len = this->getSize();
         for (unsigned i = 0; i < len; ++i) {
             (*this)[i][row_index1] += mul * this->get(i, row_index2);
         }
+        return this;
     }
 
     template<class T>
-    void ArrayMatrix<T>::addToCol(unsigned col_index1, unsigned col_index2, T mul) const {
+    ArrayMatrix<T> *ArrayMatrix<T>::addToCol(unsigned col_index1, unsigned col_index2, T mul) {
         unsigned len = this->getSize();
         for (unsigned i = 0; i < len; ++i) {
             (*this)[col_index1][i] += mul * this->get(col_index2, i);
         }
+        return this;
     }
 
     template<class T>
-    void ArrayMatrix<T>::exchangeRows(unsigned row_index1, unsigned row_index2) {
+    ArrayMatrix<T> *ArrayMatrix<T>::exchangeRows(unsigned row_index1, unsigned row_index2) {
         unsigned len = this->getSize();
         T value;
         for (unsigned i = 0; i < len; ++i) {
@@ -199,10 +198,11 @@ namespace my_namespace {
             (*this)[i][row_index1] = (*this)[i][row_index2];
             (*this)[i][row_index2] = value;
         }
+        return this;
     }
 
     template<class T>
-    void ArrayMatrix<T>::exchangeCols(unsigned col_index1, unsigned col_index2) {
+    ArrayMatrix<T> *ArrayMatrix<T>::exchangeCols(unsigned col_index1, unsigned col_index2) {
         unsigned len = this->getSize();
         T value;
         for (unsigned i = 0; i < len; ++i) {
@@ -210,10 +210,11 @@ namespace my_namespace {
             (*this)[col_index1][i] = (*this)[col_index2][i];
             (*this)[col_index2][i] = value;
         }
+        return this;
     }
 
     template<class T>
-    void ArrayMatrix<T>::set(unsigned col_index, unsigned row_index, T value) {
+    ArrayMatrix<T> *ArrayMatrix<T>::set(unsigned col_index, unsigned row_index, T value) {
         if (col_index < 0 || size_ <= col_index ||
             row_index < 0 || size_ <= row_index) {
             throw IndexOutOfRangeError("IndexOutOfRangeError", __FILE__, __func__, __LINE__);
@@ -232,24 +233,24 @@ namespace my_namespace {
     }
 
     template<class T>
-    void ArrayMatrix<T>::mapThis(T (*func)(T)) {
+    ArrayMatrix<T> *ArrayMatrix<T>::map(T (*func)(T)) {
         shared_ptr<ArraySequence<T>> col;
         for (unsigned i = 0; i < size_; ++i) {
-            col = shared_ptr<ArraySequence<T>>(cols_[i]->map(func));
-            cols_[i] = col;
+            cols_[i]->map(func);
         }
+        return this;
     }
 
     template<class T>
     ArrayMatrix<T> &ArrayMatrix<T>::operator+(const IMatrix<T> &matrix) const {
-        auto new_matrix = new ArrayMatrix<T>(*this);
+        auto new_matrix = this->clone();
         *new_matrix += matrix;
         return *new_matrix;
     }
 
     template<class T>
     ArrayMatrix<T> &ArrayMatrix<T>::operator-(const IMatrix<T> &matrix) const {
-        auto new_matrix = new ArrayMatrix<T>(*this);
+        auto new_matrix = this->clone();
         *new_matrix -= matrix;
         return *new_matrix;
     }
@@ -278,7 +279,7 @@ namespace my_namespace {
     ArrayMatrix<T> &ArrayMatrix<T>::operator*(T scalar) const {
         MulWrapper<T>::setValue(scalar);
         T (*func)(T) = MulWrapper<T>::Mul;
-        ArrayMatrix<T> *new_matrix = map(func);
+        ArrayMatrix<T> *new_matrix = clone()->map(func);
         return *new_matrix;
     }
 
@@ -311,7 +312,7 @@ namespace my_namespace {
     template<class T>
     void ArrayMatrix<T>::operator*=(T scalar) {
         MulWrapper<T>::setValue(scalar);
-        this->mapThis(MulWrapper<T>::Mul);
+        map(MulWrapper<T>::Mul);
     }
 
     template<class T>

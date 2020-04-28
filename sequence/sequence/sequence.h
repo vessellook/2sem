@@ -23,11 +23,11 @@ namespace my_namespace {
 
         virtual ISequence<T> *clone() const = 0;
 
-        virtual ISequence<T> *map(T (*func)(T)) const = 0;
+        virtual ISequence<T> *map(T (*func)(T)) = 0;
 
-        virtual ISequence<T> *where(bool (*func)(T)) const = 0;
+        virtual ISequence<T> *where(bool (*func)(T)) = 0;
 
-        virtual ISequence<T> *concat(const ISequence<T> &list) const = 0;
+        virtual ISequence<T> *concat(const ISequence<T> &list) = 0;
 
         virtual ISequence<T> *getSubsequence(unsigned startIndex, unsigned endIndex) const = 0;
 
@@ -39,9 +39,9 @@ namespace my_namespace {
 
         virtual ISequence<T> *insertAt(T item, unsigned index) = 0;
 
-        virtual T &operator[](unsigned index) = 0;
+        T &operator[](unsigned index) { getRef(index); };
 
-        virtual T operator[](unsigned index) const { return get(index); }
+        T operator[](unsigned index) const { return get(index); }
     };
 
 // extra
@@ -58,6 +58,26 @@ namespace my_namespace {
             }
         }
         return true;
+    }
+
+    template <class F, class T>
+    T reduce(const ISequence<F> &sequence, F (*func)(T, F), T initial) {
+        T result = initial;
+        unsigned len = sequence.getLength();
+        for (unsigned index = 1; index < len; index++) {
+            result = func(sequence->getData(), result);
+        }
+        return result;
+    }
+
+    template <class F, class T>
+    T reduce(const ISequence<F> &sequence, F (*func)(T, F, unsigned), T initial) {
+        T result = initial;
+        unsigned len = sequence.getLength();
+        for (unsigned index = 1; index < len; index++) {
+            result = func(sequence->getData(), result, index);
+        }
+        return result;
     }
 
 }

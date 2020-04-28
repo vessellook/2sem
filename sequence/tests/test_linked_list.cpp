@@ -1,74 +1,46 @@
 #include <iostream>
 
-#include "macro_and_functions_for_tests.h"
-#include "../linked_list/singly_linked_list.h"
+#include "asserts.h"
 
+#include "../linked_list/singly_linked_list.h"
 #define TestLinkedList SinglyLinkedList
+
 
 using namespace std;
 using namespace my_namespace;
-
-template<class T>
-bool check_length(const TestLinkedList<T> *list, unsigned expected_length, unsigned test_num) {
-    if (list->getLength() != expected_length) {
-        cout << "TEST " << test_num << ": " << "FAILED: expected list length " << expected_length << ", but got " << list->getLength() << endl;
-        return false;
-    }
-#ifdef SHOW_TEST_PASSED
-    cout << "TEST " << test_num << ": " << "PASSED: got list length " << list->getLength() << endl;
-#endif
-    return true;
-}
-
-template<class T>
-bool check_item_with_get(const TestLinkedList<T> *list, unsigned index, T expected_value, unsigned test_num) {
-    T value = list->get(index);
-    return check_value(value, expected_value, test_num);
-}
-
-template<class T>
-bool check_item_with_subscript_operator(TestLinkedList<T> *list, unsigned index, T expected_value, unsigned test_num) {
-    T value = (*list)[index];
-    return check_value(value, expected_value, test_num);
-}
+using tests::assert_equal;
 
 int main() {
     auto list1 = new TestLinkedList<int>();
-    ASSERT(check_length(list1, 0, 0));
-    print_test_separator();
+
+    assert_equal(list1->getLength(), (unsigned) 0);
 
     list1->append(3);
     list1->append(2);
     list1->append(1);
 
-    ASSERT(check_length(list1, 3, 1));
-    print_test_separator();
+    assert_equal(list1->getLength(), (unsigned) 3);
 
-    ASSERT(check_value(list1->getFirst(), 1, 2));
-    print_test_separator();
+    return 0;
+    assert_equal(list1->getFirst(), 1);
+    assert_equal(list1->getLast(), 3);
 
-    ASSERT(check_value(list1->getLast(), 3, 3));
-    print_test_separator();
-
-    ASSERT(check_item_with_get(list1, 0, 1, 4));
-    ASSERT(check_item_with_get(list1, 1, 2, 4));
-    ASSERT(check_item_with_get(list1, 2, 3, 4));
-    print_test_separator();
+    assert_equal(list1->get(0), 1);
+    assert_equal(list1->get(1), 2);
+    assert_equal(list1->get(2), 3);
 
     list1->prepend(5);
     list1->prepend(6);
     list1->insertAt(4, 3);
 
-    ASSERT(check_length(list1, 6, 5));
-    print_test_separator();
+    assert_equal(list1->getLength(), (unsigned) 6);
 
-    ASSERT(check_item_with_get(list1, 0, 1, 6));
-    ASSERT(check_item_with_get(list1, 1, 2, 6));
-    ASSERT(check_item_with_get(list1, 2, 3, 6));
-    ASSERT(check_item_with_get(list1, 3, 4, 6));
-    ASSERT(check_item_with_get(list1, 4, 5, 6));
-    ASSERT(check_item_with_get(list1, 5, 6, 6));
-    print_test_separator();
+    assert_equal(list1->get(0), 1);
+    assert_equal(list1->get(1), 2);
+    assert_equal(list1->get(2), 3);
+    assert_equal(list1->get(3), 4);
+    assert_equal(list1->get(4), 5);
+    assert_equal(list1->get(5), 6);
 
     int *items = new int[5];
     items[0] = 1;
@@ -79,28 +51,24 @@ int main() {
 
     auto list2 = new TestLinkedList<int>(items, 5);
 
-    ASSERT(check_length(list2, 5, 7));
-    print_test_separator();
+    assert_equal(list2->getLength(), (unsigned) 5);
 
-    ASSERT(check_item_with_subscript_operator(list2, 0, 1, 8));
-    ASSERT(check_item_with_subscript_operator(list2, 1, 2, 8));
-    ASSERT(check_item_with_get(list2, 2, 4, 8));
-    ASSERT(check_item_with_get(list2, 3, 8, 8));
-    ASSERT(check_item_with_get(list2, 4, 16, 8));
-    print_test_separator();
+    assert_equal(list2->get(0), 1);
+    assert_equal(list2->get(1), 2);
+    assert_equal(list2->get(2), 4);
+    assert_equal((*list2)[3], 8);
+    assert_equal((*list2)[4], 16);
 
     auto list3 = new TestLinkedList<int>(*list2);
     delete list2;
 
-    ASSERT(check_length(list3, 5, 9));
-    print_test_separator();
+    assert_equal(list3->getLength(), (unsigned) 5);
 
-    ASSERT(check_item_with_get(list3, 0, 1, 9));
-    ASSERT(check_item_with_get(list3, 1, 2, 9));
-    ASSERT(check_item_with_get(list3, 2, 4, 9));
-    ASSERT(check_item_with_subscript_operator(list3, 3, 8, 9));
-    ASSERT(check_item_with_subscript_operator(list3, 4, 16, 9));
-    print_test_separator();
+    assert_equal(list3->get(0), 1);
+    assert_equal(list3->get(1), 2);
+    assert_equal(list3->get(2), 4);
+    assert_equal((*list3)[3], 8);
+    assert_equal((*list3)[4], 16);
 
     (*list3)[0] = 7;
     (*list3)[1] = 8;
@@ -109,33 +77,45 @@ int main() {
     list3->set(3, 10);
     list3->set(4, 11);
 
-    ASSERT(check_length(list3, 5, 10));
-    print_test_separator();
+    assert_equal(list3->getLength(), (unsigned) 5);
 
-    ASSERT(check_item_with_get(list3, 0, 7, 11));
-    ASSERT(check_item_with_get(list3, 1, 8, 11));
-    ASSERT(check_item_with_get(list3, 2, 9, 11));
-    ASSERT(check_item_with_get(list3, 3, 10, 11));
-    ASSERT(check_item_with_get(list3, 4, 11, 11));
-    print_test_separator();
+    assert_equal(list3->get(0), 7);
+    assert_equal(list3->get(1), 8);
+    assert_equal(list3->get(2), 9);
+    assert_equal(list3->get(3), 10);
+    assert_equal(list3->get(4), 11);
 
-    auto list4 = list1->concat(list3);
+    TestLinkedList<int>* list4 = list1->clone()->concat(list3);
 
-    ASSERT(check_length(list4, 11, 12));
-    print_test_separator();
+    assert_equal(list4->getLength(), (unsigned) 11);
 
-    ASSERT(check_item_with_get(list4, 0, 1, 13));
-    ASSERT(check_item_with_get(list4, 1, 2, 13));
-    ASSERT(check_item_with_get(list4, 2, 3, 13));
-    ASSERT(check_item_with_get(list4, 3, 4, 13));
-    ASSERT(check_item_with_get(list4, 4, 5, 13));
-    ASSERT(check_item_with_get(list4, 5, 6, 13));
-    ASSERT(check_item_with_get(list4, 6, 7, 13));
-    ASSERT(check_item_with_get(list4, 7, 8, 13));
-    ASSERT(check_item_with_get(list4, 8, 9, 13));
-    ASSERT(check_item_with_get(list4, 9, 10, 13));
-    ASSERT(check_item_with_get(list4, 10, 11, 13));
-    print_test_separator();
+    assert_equal(list4->get(0), 1);
+    assert_equal(list4->get(1), 2);
+    assert_equal(list4->get(2), 3);
+    assert_equal(list4->get(3), 4);
+    assert_equal(list4->get(4), 5);
+    assert_equal(list4->get(5), 6);
+    assert_equal(list4->get(6), 7);
+    assert_equal(list4->get(7), 8);
+    assert_equal(list4->get(8), 9);
+    assert_equal(list4->get(9), 10);
+    assert_equal(list4->get(10), 11);
+
+    list4->cut(5, 7);
+
+    assert_equal(list4->getLength(), (unsigned) 10, __FILE__, __LINE__);
+
+
+    assert_equal(list4->get(0), 1, __FILE__, __LINE__);
+    assert_equal(list4->get(1), 2, __FILE__, __LINE__);
+    assert_equal(list4->get(2), 3, __FILE__, __LINE__);
+    assert_equal(list4->get(3), 4, __FILE__, __LINE__);
+    assert_equal(list4->get(4), 5, __FILE__, __LINE__);
+    assert_equal(list4->get(5), 7, __FILE__, __LINE__);
+    assert_equal(list4->get(6), 8, __FILE__, __LINE__);
+    assert_equal(list4->get(7), 9, __FILE__, __LINE__);
+    assert_equal(list4->get(8), 10, __FILE__, __LINE__);
+    assert_equal(list4->get(9), 11, __FILE__, __LINE__);
 
     delete list1;
     delete list3;

@@ -8,11 +8,12 @@ using namespace std;
 
 const unsigned FSM::start_state = 0;
 
-FSM::FSM(shared_ptr<string> buffer) : matrix_(), is_halt_(false), state_(start_state), buffer_(std::move(buffer)) {
+FSM::FSM(shared_ptr<std::string> buffer) : matrix_(), is_halt_(false), state_(start_state), buffer_(std::move(buffer)) {
     word_.clear();
 }
 
 bool FSM::input(char chr) {
+    if(is_halt_) return false;
     for(unsigned i = 0; i < matrix_.getLength(); ++i) {
         Edge edge = matrix_[i];
         if(edge.from == state_) {
@@ -53,3 +54,4 @@ void FSM::setEdge(Edge edge) {
     matrix_.prepend(edge);
 }
 
+unsigned FSM::getState() { return state_; }

@@ -30,27 +30,25 @@ namespace my_namespace {
 
         virtual IMatrix<T> *clone() const = 0;
 
-        virtual IMatrix<T> *map(T (*func)(T)) const = 0;
+        virtual IMatrix<T> *transpose() = 0;
 
-        virtual IMatrix<T> *transposeNew() const = 0;
+        virtual IMatrix<T> *map(T (*func)(T)) = 0;
 
-        virtual void mapThis(T (*func)(T)) = 0;
+        virtual IMatrix<T> *mulRow(unsigned row_index, T scalar) = 0;
 
-        virtual void mulRow(unsigned row_index, T scalar) = 0;
+        virtual IMatrix<T> *mulCol(unsigned col_index, T scalar) = 0;
 
-        virtual void mulCol(unsigned col_index, T scalar) = 0;
+        virtual IMatrix<T> *getMinor(unsigned col_index, unsigned row_index) const = 0;
 
-        virtual IMatrix<T> *minorNew(unsigned col_index, unsigned row_index) const = 0;
+        virtual IMatrix<T> *addToRow(unsigned row_index1, unsigned row_index2, T mul) = 0;
 
-        virtual void addToRow(unsigned row_index1, unsigned row_index2, T mul) const = 0;
+        virtual IMatrix<T> *addToCol(unsigned col_index1, unsigned col_index2, T mul) = 0;
 
-        virtual void addToCol(unsigned col_index1, unsigned col_index2, T mul) const = 0;
+        virtual IMatrix<T> *exchangeRows(unsigned row_index1, unsigned row_index2) = 0;
 
-        virtual void exchangeRows(unsigned row_index1, unsigned row_index2) = 0;
+        virtual IMatrix<T> *exchangeCols(unsigned col_index1, unsigned col_index2) = 0;
 
-        virtual void exchangeCols(unsigned col_index1, unsigned col_index2) = 0;
-
-        virtual void set(unsigned col_index, unsigned row_index, T value) = 0;
+        virtual IMatrix<T> *set(unsigned col_index, unsigned row_index, T value) = 0;
 
         virtual IMatrix<T> &operator*(T scalar) const = 0;
 

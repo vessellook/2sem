@@ -96,8 +96,11 @@ namespace my_namespace {
 
     template<class T>
     DynamicArray<T>* DynamicArray<T>::resize(unsigned new_size) {
-        if (new_size < 0) {
-            IndexOutOfRangeError("new_size < 0", __FILE__, __func__, __LINE__);
+        if (new_size == 0) {
+            size_ = 0;
+            if(c_array_ != nullptr) {
+                delete[] c_array_;
+            }
         }
         if (size_ == 0) {
             c_array_ = new T[new_size];//static_cast<T *>(malloc(sizeof(T) * new_size));

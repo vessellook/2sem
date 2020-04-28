@@ -61,8 +61,8 @@ namespace my_namespace {
 
     struct EmptyValueError : public MyError {
         EmptyValueError(const std::string &message,
-                              const std::string &file,
-                              const std::string &func,
-                              unsigned line) : MyError(message, file, func, line) {};
+                        const std::string &file,
+                        const std::string &func,
+                        unsigned line) : MyError(message, file, func, line) {};
     };
 }

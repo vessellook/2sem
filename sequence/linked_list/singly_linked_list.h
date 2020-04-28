@@ -2,237 +2,91 @@
 
 #include <memory>
 
-#include "singly_linked_node.h"
+#include "../linked_list/singly_linked_node.h"
+#include "singly_linked_list_base.h"
 #include "../common/exceptions.h"
 
 namespace my_namespace {
 
     template<class T>
-    class SinglyLinkedList {
-    private:
-        unsigned length_;
-        // sentinel_ будет содержать ссылку на голову и данные хвоста
-        // хвост будет указывать на sentinel_
-        std::shared_ptr<SinglyLinkedNode<T>> sentinel_;
-    private:
-        std::shared_ptr<SinglyLinkedNode<T>> moveForward(std::shared_ptr<SinglyLinkedNode<T>> node, unsigned count = 1) const;
-
-        std::shared_ptr<SinglyLinkedNode<T>> getNode(unsigned index) const;
+    class SinglyLinkedList : public SinglyLinkedListBase<T> {
+        // простой список, большое количество вспомогательных функций
     public:
-        SinglyLinkedList(): sentinel_(new SinglyLinkedNode<T>()), length_(0) {
-            sentinel_->setNext(sentinel_);
+        SinglyLinkedList() : SinglyLinkedListBase<T>() {}
+
+        SinglyLinkedList(const T *items, unsigned count) : SinglyLinkedListBase<T>(items, count) {}
+
+        SinglyLinkedList(const SinglyLinkedList<T> &other) : SinglyLinkedListBase<T>(other) {}
+
+        T getFirst() const { return this->get(0); }
+
+        T getLast() const { return this->get(this->length_ - 1); }
+
+        T reduce(T (*)(T, T)) const;
+
+        T reduce(T (*)(T, T), T) const;
+
+        T reduce(T (*)(T, T, unsigned)) const;
+
+        T reduce(T (*)(T, T, unsigned), T) const;
+
+        SinglyLinkedList<T> *map(T (*)(T));
+
+        SinglyLinkedList<T> *map(T (*)(T, unsigned));
+
+        SinglyLinkedList<T> *where(bool (*)(T));
+
+        SinglyLinkedList<T> *where(bool (*)(T, unsigned));
+
+        SinglyLinkedList<T> *concat(const SinglyLinkedList<T> *);
+
+        SinglyLinkedList<T> *getSubList(unsigned, unsigned) const;
+
+        SinglyLinkedList<T> *append(T item) {
+            this->insertAt(item, 0);
+            return this;
         }
 
-        SinglyLinkedList(const T *items, unsigned count, bool is_direct_order = true);
+        SinglyLinkedList<T>* clone() const;
 
-        SinglyLinkedList(SinglyLinkedList<T> const &other, bool is_direct_order = true);
-
-        ~SinglyLinkedList() { sentinel_.reset(); }
-
-        unsigned getLength() const { return length_; };
-
-        T getFirst() const;
-
-        T getLast() const;
-
-        T get(unsigned index) const;
-
-        T& getRef(unsigned index);
-
-        std::shared_ptr<SinglyLinkedNode<T>> getHandle() const { return sentinel_->getNext(); }
-
-        T reduce(T (*func)(T, T)) const;
-
-        T reduce(T (*func)(T, T), T initial) const;
-
-        T reduce(T (*func)(T, T, unsigned)) const;
-
-        T reduce(T (*func)(T, T, unsigned), T initial) const;
-
-        SinglyLinkedList<T> *clone(bool is_direct_order = true) const;
-
-        SinglyLinkedList<T> *map(T (*func)(T)) const;
-
-        SinglyLinkedList<T> *map(T (*func)(T, unsigned)) const;
-
-        SinglyLinkedList<T> *where(bool (*func)(T)) const;
-
-        SinglyLinkedList<T> *where(bool (*func)(T, unsigned)) const;
-
-        SinglyLinkedList<T> *concat(const SinglyLinkedList<T> *list) const;
-
-        SinglyLinkedList<T> *getSubList(unsigned startIndex, unsigned endIndex, bool is_direct_order = true) const;
-
-        SinglyLinkedList<T> *append(T item);
-
-        SinglyLinkedList<T> *prepend(T item);
-
-        SinglyLinkedList<T> *set(unsigned index, T item);
-
-        SinglyLinkedList<T> *insertAt(T item, unsigned index);
-
-        SinglyLinkedList<T> *remove(unsigned index);
+        SinglyLinkedList<T> *cut(unsigned, unsigned);
 
         bool isPalindrom();
 
-        T &operator[](unsigned index) { return getRef(index); };
+        T &operator[](unsigned index) { return this->getRef(index); };
     };
 
     template<class T>
-    SinglyLinkedList<T>::SinglyLinkedList(const T *items, unsigned count, bool is_direct_order): sentinel_(new SinglyLinkedNode<T>()), length_(0) {
-        sentinel_->setNext(sentinel_);
-        for (unsigned index = 0; index < count; index++) {
-            if (is_direct_order) {
-                this->prepend(items[index]);
-            } else {
-                this->append(items[index]);
-            }
+    SinglyLinkedList<T> *
+    SinglyLinkedList<T>::getSubList(unsigned startIndex, unsigned endIndex) const {
+        if (this->length_ <= endIndex || startIndex < endIndex) {
+            throw IndexOutOfRangeError("length_ <= endIndex || startIndex < endIndex", __FILE__, __func__, __LINE__);
         }
-        if (count > 0) {
-            sentinel_->setData(items[count-1]);
-        }
-    }
-
-    template<class T>
-    SinglyLinkedList<T>::SinglyLinkedList(SinglyLinkedList<T> const &other, bool is_direct_order): sentinel_(new SinglyLinkedNode<T>()), length_(0) {
-        sentinel_->setNext(sentinel_);
-        auto node = other.sentinel_->getNext();
-        unsigned len = other.getLength();
-        for (unsigned index = 0; index < len; index++) {
-            if (is_direct_order) {
-                this->prepend(node->getData());
-            } else {
-                this->append(node->getData());
-            }
-            node = node->getNext();
-        }
-        sentinel_->setData(other.getLast());
-    }
-
-    template<class T>
-    T SinglyLinkedList<T>::getFirst() const {
-        if (length_ == 0) {
-            throw MyError("IndexOutOfRangeError");
-        }
-        return sentinel_->getNext()->getData();
-    }
-
-    template<class T>
-    T SinglyLinkedList<T>::getLast() const {
-        if (length_ == 0) {
-            throw MyError("IndexOutOfRangeError");
-        }
-        return sentinel_->getData();
-    }
-
-    template<class T>
-    T SinglyLinkedList<T>::get(unsigned index) const {
-        if (length_ <= index || index < 0) {
-            throw MyError("IndexOutOfRangeError");
-        }
-        return getNode(index)->getData();
-    }
-
-    template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::getSubList(unsigned startIndex, unsigned endIndex, bool is_direct_order) const {
-        if (length_ <= endIndex || startIndex < endIndex || startIndex < 0) {
-            throw MyError("IndexOutOfRangeError");
-        }
-        auto node = getNode(startIndex);
+        auto node = this->moveForward(this->sentinel_, startIndex + 1);
         auto sublist = new SinglyLinkedList();
         for (unsigned i = 0; i < endIndex - startIndex; i++) {
-            if (is_direct_order) {
-                sublist->prepend(node->getData());
-            } else {
-                sublist->append(node->getData());
-            }
+            sublist->prepend(node->getData());
             node = node->getNext();
         }
         return sublist;
     }
 
     template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::append(T item) {
-        sentinel_->setNext(std::make_shared<SinglyLinkedNode<T>>(item, sentinel_->getNext()));
-        if(!length_) {
-            sentinel_->setData(item);
-        }
-        length_++;
-        return this;
-    }
-
-    template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::prepend(T item) {
-        sentinel_->setNext(std::make_shared<SinglyLinkedNode<T>>(item, sentinel_->getNext()));
-        sentinel_->setData(item);
-        sentinel_ = sentinel_->getNext();
-        length_++;
-        return this;
-    }
-
-    template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::insertAt(T item, unsigned index) {
-        if (length_ < index) {
-            throw MyError("IndexOutOfRangeError");
-        }
-        if(index == 0) {
-            append(item);
-            return this;
-        }
-        if(index == length_ - 1) {
-            prepend(item);
-            return this;
-        }
-        auto node = getNode(index-1);
-        node->setNext(std::make_shared<SinglyLinkedNode<T>>(item, node->getNext()));
-        length_++;
-        return this;
-    }
-
-    template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::set(unsigned index, T item) {
-        if (length_ <= index) {
-            throw MyError("IndexOutOfRangeError");
-        }
-        getNode(index)->setData(item);
-        return this;
-    }
-
-    template <class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::remove(unsigned index) {
-        auto node = moveForward(sentinel_, index);
-        auto next_node = node->getNext()->getNext();
-        node->getNext()->clearNext();// вообще этот шаг необязателен
-        node->setNext(next_node);
-        return this;
-    }
-
-    template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::concat(const SinglyLinkedList<T> *list) const {
-        auto new_list = new SinglyLinkedList<T>(*this);
+    SinglyLinkedList<T> *SinglyLinkedList<T>::concat(const SinglyLinkedList<T> *list) {
         for (unsigned index = 0; index < list->length_; index++) {
-            new_list->prepend(list->get(index));
+            this->prepend(list->get(index));
         }
-        return new_list;
-    }
-
-    template<class T>
-    typename std::shared_ptr<SinglyLinkedNode<T>> SinglyLinkedList<T>::moveForward(std::shared_ptr<SinglyLinkedNode<T>> node, unsigned count) const {
-        // небезопасная функция — не проверяется, индекс превышает длину
-        for (unsigned i = 0; i < count; i++) {
-            node = node->getNext();
-        }
-        return node;
+        return this;
     }
 
     template<class T>
     T SinglyLinkedList<T>::reduce(T (*func)(T, T)) const {
-        if (!length_) {
-            throw MyError("reduce to empty sequence");
+        if (!this->length_) {
+            throw IndexOutOfRangeError("length_ == 0", __FILE__, __func__, __LINE__);
         }
         T result = getFirst();
-        auto node = sentinel_;
-        for (unsigned i = 1; i < length_; i++) {
+        auto node = this->sentinel_;
+        for (unsigned i = 1; i < this->length_; i++) {
             node = node->getNext();
             result = func(node->getData(), result);
         }
@@ -242,8 +96,8 @@ namespace my_namespace {
     template<class T>
     T SinglyLinkedList<T>::reduce(T (*func)(T, T), T initial) const {
         T result = initial;
-        auto node = sentinel_;
-        for (unsigned index = 0; index < length_; index++) {
+        auto node = this->sentinel_;
+        for (unsigned index = 0; index < this->length_; index++) {
             node = node->getNext();
             result = func(node->getData(), result);
         }
@@ -252,12 +106,12 @@ namespace my_namespace {
 
     template<class T>
     T SinglyLinkedList<T>::reduce(T (*func)(T, T, unsigned)) const {
-        if (!length_) {
-            throw MyError("reduce to empty sequence");
+        if (!this->length_) {
+            throw IndexOutOfRangeError("length_ == 0", __FILE__, __func__, __LINE__);
         }
         T result = getFirst();
-        auto node = sentinel_;
-        for (unsigned index = 0; index < length_; index++) {
+        auto node = this->sentinel_;
+        for (unsigned index = 0; index < this->length_; index++) {
             node = node->getNext();
             result = func(node->getData(), result, index);
         }
@@ -267,8 +121,8 @@ namespace my_namespace {
     template<class T>
     T SinglyLinkedList<T>::reduce(T (*func)(T, T, unsigned), T initial) const {
         T result = initial;
-        auto node = sentinel_;
-        for (unsigned index = 0; index < length_; index++) {
+        auto node = this->sentinel_;
+        for (unsigned index = 0; index < this->length_; index++) {
             node = node->getNext();
             result = func(node->getData(), result, index);
         }
@@ -276,84 +130,93 @@ namespace my_namespace {
     }
 
     template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::map(T (*func)(T)) const {
-        auto new_list = new SinglyLinkedList<T>();
-        auto node = sentinel_;
-        for (unsigned index = 0; index < length_; index++) {
+    SinglyLinkedList<T> *SinglyLinkedList<T>::map(T (*func)(T)) {
+        auto node = this->sentinel_;
+        for (unsigned index = 0; index < this->length_; index++) {
             node = node->getNext();
-            new_list->prepend(func(node->getData()));
+            node->setData(func(node->getData()));
         }
-        return new_list;
+        return this;
     }
 
     template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::map(T (*func)(T, unsigned)) const {
-        auto new_list = new SinglyLinkedList<T>();
-        auto node = sentinel_;
-        for (unsigned index = 0; index < length_; index++) {
+    SinglyLinkedList<T> *SinglyLinkedList<T>::map(T (*func)(T, unsigned)) {
+        auto node = this->sentinel_;
+        for (unsigned index = 0; index < this->length_; index++) {
             node = node->getNext();
-            new_list->prepend(func(node->getData(), index));
+            node->setData(func(node->getData(), index));
         }
-        return new_list;
+        return this;
     }
 
     template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::where(bool (*func)(T)) const {
-        auto new_list = new SinglyLinkedList<T>();
-        auto node = sentinel_;
-        T value;
-        for (unsigned i = 0; i < length_; i++) {
-            node = node->getNext();
-            if (func(node->getData())) {
-                new_list->prepend(node->getData());
+    SinglyLinkedList<T> *SinglyLinkedList<T>::where(bool (*func)(T)) {
+        if(this->length_ == 0) return this;
+        unsigned index = 0;
+        auto node = this->sentinel_;
+        while(index < this->length_ - 1) {
+            if(!func(node->getNext()->getData())) {
+                this->skipNext(node);
+            } else {
+                node = node->getNext();
+                index++;
             }
         }
-        return new_list;
+        if(!func(this->tail_->getData())) {
+            this->tail_ = node;
+            this->tail_->clearNext();
+            this->length_--;
+        }
+        return this;
     }
 
     template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::where(bool (*func)(T, unsigned)) const {
-        auto new_list = new SinglyLinkedList<T>();
-        auto node = sentinel_;
-        T value;
-        for (unsigned i = 0; i < length_; i++) {
-            node = node->getNext();
-            if (func(node->getData())) {
-                new_list->prepend(node->getData());
+    SinglyLinkedList<T> *SinglyLinkedList<T>::where(bool (*func)(T, unsigned)) {
+        if(this->length_ == 0) return this;
+        unsigned index = 0;
+        unsigned prev_index = 0;
+        auto node = this->sentinel_;
+        while(index < this->length_ - 1) {
+            if(!func(node->getNext()->getData(), prev_index)) {
+                this->skipNext(node);
+            } else {
+                node = node->getNext();
+                index++;
             }
+            prev_index++;
         }
-        return new_list;
-    }
-
-    template<class T>
-    T& SinglyLinkedList<T>::getRef(unsigned index) {
-        if (length_ <= index) {
-            throw MyError("IndexOutOfRangeError");
+        if(!func(this->tail_->getData(), prev_index)) {
+            this->tail_ = node;
+            this->tail_->clearNext();
+            this->length_--;
         }
-        return getNode(index)->getDataRef();
+        return this;
     }
 
     template<class T>
     bool SinglyLinkedList<T>::isPalindrom() {
-        if(length_ < 2) {
+        if (this->length_ < 2) {
             return true;
         }
 
-        std::shared_ptr<SinglyLinkedNode<T>> prevNode = getNode((length_ + 1) / 2);
-        std::shared_ptr<SinglyLinkedNode<T>> curNode = prevNode->getNext();
-        std::shared_ptr<SinglyLinkedNode<T>> nextNode;
-        for(unsigned i = 0; i < length_ / 2; i++) {
+        std::shared_ptr<SinglyLinkedNode<T>>
+                prevNode = getNode((this->length_ + 1) / 2);
+        std::shared_ptr<SinglyLinkedNode<T>>
+                curNode = prevNode->getNext();
+        std::shared_ptr<SinglyLinkedNode<T>>
+                nextNode;
+        for (unsigned i = 0; i < this->length_ / 2; i++) {
             nextNode = curNode->getNext();
             curNode->setNext(prevNode);
             prevNode = curNode;
             curNode = nextNode;
         }// в curNode останется хвост, в prevNode останется sentinel_
 
-        auto forwardNode = sentinel_->getNext();
+        auto forwardNode = this->sentinel_->getNext();
         auto backwardNode = curNode;
         bool is_palindrom = true;
         unsigned index = 0;
-        while(is_palindrom && index < length_/2) {
+        while (is_palindrom && index < this->length_ / 2) {
             is_palindrom = forwardNode->getData() == backwardNode->getData();
             forwardNode = forwardNode->getNext();
             backwardNode = backwardNode->getNext();
@@ -362,7 +225,7 @@ namespace my_namespace {
 
         // prevNode всё ещё содержит sentinel_
         // curNode всё ещё содержит хвост
-        for(unsigned i = 0; i < length_ / 2; i++) {
+        for (unsigned i = 0; i < this->length_ / 2; i++) {
             nextNode = curNode->getNext();
             curNode->setNext(prevNode);
             prevNode = curNode;
@@ -373,23 +236,29 @@ namespace my_namespace {
     }
 
     template<class T>
-    std::shared_ptr<SinglyLinkedNode<T>> SinglyLinkedList<T>::getNode(unsigned index) const {
-        return moveForward(sentinel_, index + 1);
+    SinglyLinkedList<T> *SinglyLinkedList<T>::cut(unsigned start_index, unsigned end_index) {
+        if (this->length_ < end_index || end_index < start_index) {
+            throw IndexOutOfRangeError("length_ < end_index || end_index < start_index", __FILE__, __func__, __LINE__);
+        }
+        if(end_index == this->length_ - 1) {
+            this->tail_ = this->moveForward(this->sentinel_, start_index);
+            this->tail_->clearNext();
+        } else {
+            auto start_node = this->moveForward(this->sentinel_, start_index);
+            start_node->setNext(this->moveForward(start_node, end_index - start_index + 2));
+        }
+        this->length_ = this->length_ - end_index + start_index - 1;
+        return this;
     }
 
     template<class T>
-    SinglyLinkedList<T> *SinglyLinkedList<T>::clone(bool is_direct_order) const {
+    SinglyLinkedList<T> *SinglyLinkedList<T>::clone() const {
         auto list = new SinglyLinkedList<T>();
-        auto node = sentinel_->getNext();
-        for (unsigned index = 0; index < length_; index++) {
-            if (is_direct_order) {
-                list->prepend(node->getData());
-            } else {
-                list->append(node->getData());
-            }
+        auto node = this->sentinel_->getNext();
+        for (unsigned index = 0; index < this->length_; index++) {
+            list->prepend(node->getData());
             node = node->getNext();
         }
-        list->sentinel_->setData(getLast());
         return list;
     }
 

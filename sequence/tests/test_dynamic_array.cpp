@@ -22,9 +22,7 @@ bool check_size(const TestDynamicArray<T> *array, unsigned expected_size, unsign
              << array->getSize() << endl;
         return false;
     }
-#ifdef SHOW_TEST_PASSED
     cout << "TEST " << test_num << ": " << "PASSED: got array size " << array->getSize() << endl;
-#endif
     return true;
 }
 
@@ -78,6 +76,58 @@ bool check_constructor_and_size() {
     return true;
 }
 
+bool check_set_and_get() {
+    auto array1 = TestDynamicArray<int>(10);
+    array1.set(0, 3);
+    array1.set(1, 5);
+    array1.set(2, 0);
+    assert_equal(array1.get(0), 3, __FILE__, __LINE__);
+    assert_equal(array1.get(1), 5, __FILE__, __LINE__);
+    assert_equal(array1.get(2), 0, __FILE__, __LINE__);
+    array1.getRef(0) = 1;
+    array1.getRef(1) = 2;
+    array1.getRef(2) = 3;
+    assert_equal(array1.get(0), 1, __FILE__, __LINE__);
+    assert_equal(array1.get(1), 2, __FILE__, __LINE__);
+    assert_equal(array1.get(2), 3, __FILE__, __LINE__);
+    auto array3 = make_shared<TestDynamicArray<int>>(5);
+    array3->set(0, 1);
+    array3->set(1, 2);
+    array3->set(2, 3);
+    auto array4 = TestDynamicArray<shared_ptr<TestDynamicArray<int>>>(10);
+    array4.set(5, array3);
+    assert_equal(array4.get(5)->get(2), 3, __FILE__, __LINE__);
+    array3->set(2, 4);
+    assert_equal(array4.get(5)->get(2), 4, __FILE__, __LINE__);
+    return true;
+}
+
+bool check_subscript_operator() {
+    auto array1 = TestDynamicArray<int>(10);
+    array1[0] = 3;
+    array1[1] = 5;
+    array1[2] = 0;
+    assert_equal(array1[0], 3, __FILE__, __LINE__);
+    assert_equal(array1[1], 5, __FILE__, __LINE__);
+    assert_equal(array1[2], 0, __FILE__, __LINE__);
+    array1[0] = 1;
+    array1[1] = 2;
+    array1[2] = 3;
+    assert_equal(array1[0], 1, __FILE__, __LINE__);
+    assert_equal(array1[1], 2, __FILE__, __LINE__);
+    assert_equal(array1[2], 3, __FILE__, __LINE__);
+    auto array3 = make_shared<TestDynamicArray<int>>(5);
+    (*array3)[0] = 1;
+    (*array3)[1] = 2;
+    (*array3)[2] = 3;
+    auto array4 = TestDynamicArray<shared_ptr<TestDynamicArray<int>>>(10);
+    array4[5] = array3;
+    assert_equal((*(array4[5]))[2], 3, __FILE__, __LINE__);
+    (*array3)[2] = 4;
+    assert_equal((*(array4[5]))[2], 4, __FILE__, __LINE__);
+    return true;
+}
+
 bool check_resize() {
     auto array1 = TestDynamicArray<int>();
     array1.resize(3);
@@ -96,45 +146,16 @@ bool check_resize() {
     return true;
 }
 
-bool check_set_and_get() {
-    auto array1 = TestDynamicArray<int>(10);
-    array1.set(0, 3);
-    array1.set(1, 5);
-    array1.set(2, 0);
-    assert_equal(array1.get(0), 3, __FILE__, __LINE__);
-    assert_equal(array1.get(1), 5, __FILE__, __LINE__);
-    assert_equal(array1.get(2), 0, __FILE__, __LINE__);
-    array1.getRef(0) = 1;
-    array1.getRef(1) = 2;
-    array1.getRef(2) = 3;
-    assert_equal(array1.get(0), 1, __FILE__, __LINE__);
-    assert_equal(array1.get(1), 2, __FILE__, __LINE__);
-    assert_equal(array1.get(2), 3, __FILE__, __LINE__);
-//    auto array2 = TestDynamicArray<TestDynamicArray<int>>(10);
-//    array2.set(0, array1);
-//    assert_equal(array2.get(0).get(2), 3, __FILE__, __LINE__);
-//    array1.set(2, 4);
-//    assert_equal(array2.get(5).get(2), 3, __FILE__, __LINE__);
-    auto array3 = make_shared<TestDynamicArray<int>>(5);
-    array3->set(0, 1);
-    array3->set(1, 2);
-    array3->set(2, 3);
-    auto array4 = TestDynamicArray<shared_ptr<TestDynamicArray<int>>>(10);
-    array4.set(5, array3);
-    assert_equal(array4.get(5)->get(2), 3, __FILE__, __LINE__);
-    array3->set(2, 4);
-    assert_equal(array4.get(5)->get(2), 4, __FILE__, __LINE__);
-    return true;
-}
-
 int main() {
     check_constructor_and_size();
-    cout << "CONSTRUCTOR TEST PASSED" << endl;
+    cout << "constructor TEST PASSED" << endl;
 
     check_set_and_get();
-    cout << "SET & GET TEST PASSED" << endl;
+    cout << "set&get TEST PASSED" << endl;
+    check_subscript_operator();
+    cout << "operator[] TEST PASSED" << endl;
     check_resize();
-    cout << "RESIZE TEST PASSED" << endl;
+    cout << "resize TEST PASSED" << endl;
 
     auto *array1 = new TestDynamicArray<int>();
     ASSERT(check_size(array1, 0, 0));

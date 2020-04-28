@@ -8,13 +8,13 @@ namespace my_namespace {
     template<class T>
     class LinkedListSequence : public ISequence<T> {
     private:
-        SinglyLinkedList<T> *items_ = nullptr;
+        SinglyLinkedList<T> *list_ = nullptr;
     public:
         LinkedListSequence();
 
-        LinkedListSequence(const T *items, unsigned count);
+        LinkedListSequence(const T *, unsigned);
 
-        explicit LinkedListSequence(const ISequence<T> &list);
+        explicit LinkedListSequence(const ISequence<T> &);
 
         ~LinkedListSequence() override;
 
@@ -24,79 +24,74 @@ namespace my_namespace {
 
         T getLast() const override;
 
-        T get(unsigned index) const override;
+        T get(unsigned) const override;
 
-        T& getRef(unsigned index) override;
+        T& getRef(unsigned) override;
 
         T reduce(T (*func)(T, T)) const override;
 
-        T reduce(T (*func)(T, T), T initial) const override;
+        T reduce(T (*func)(T, T), T initial) const override { return list_->reduce(func, initial); }
 
         LinkedListSequence<T> *clone() const override;
 
-        LinkedListSequence<T> *map(T (*func)(T)) const override;
+        LinkedListSequence<T> *map(T (*)(T)) override;
 
-        LinkedListSequence<T> *where(bool (*func)(T)) const override;
+        LinkedListSequence<T> *where(bool (*)(T)) override;
 
-        LinkedListSequence<T> *concat(const ISequence<T> &list) const override;
+        LinkedListSequence<T> *concat(const ISequence<T> &) override;
 
-        LinkedListSequence<T> *getSubsequence(unsigned startIndex, unsigned endIndex) const override;
+        LinkedListSequence<T> *getSubsequence(unsigned, unsigned) const override;
 
-        LinkedListSequence<T> *append(T item) override;
+        LinkedListSequence<T> *append(T) override;
 
-        LinkedListSequence<T> *prepend(T item) override;
+        LinkedListSequence<T> *prepend(T) override;
 
-        LinkedListSequence<T> *insertAt(T item, unsigned index) override;
-
-
-        T &operator[](unsigned index) override;
-
-        T operator[](unsigned index) const override { return get(index); }
+        LinkedListSequence<T> *insertAt(T, unsigned) override;
     };
 
     template<class T>
     LinkedListSequence<T>::LinkedListSequence() {
-        items_ = new SinglyLinkedList<T>();
+        list_ = new SinglyLinkedList<T>();
     }
 
     template<class T>
     LinkedListSequence<T>::LinkedListSequence(const T *items, unsigned count) {
-        items_ = new SinglyLinkedList<T>(items, count);
+        list_ = new SinglyLinkedList<T>(items, count);
     }
 
     template<class T>
     LinkedListSequence<T>::LinkedListSequence(const ISequence<T> &list) {
-        items_ = new SinglyLinkedList<T>();
+        list_ = new SinglyLinkedList<T>();
         unsigned length = list.getLength();
         for (unsigned i = 0; i < length; ++i) {
-            items_->prepend(T(list.get(i)));
+            list_->prepend(T(list.get(i)));
         }
     }
 
 
     template<class T>
     LinkedListSequence<T>::~LinkedListSequence() {
-        delete items_;
+        delete list_;
     }
 
     template<class T>
     T LinkedListSequence<T>::getFirst() const {
-        return items_->getFirst();
+        return list_->getFirst();
     }
 
     template<class T>
     T LinkedListSequence<T>::getLast() const {
-        return items_->getLast();
+        return list_->getLast();
     }
 
     template<class T>
     T LinkedListSequence<T>::get(unsigned index) const {
-        return items_->get(index);
+        return list_->get(index);
     }
 
     template<class T>
     LinkedListSequence<T> *LinkedListSequence<T>::getSubsequence(unsigned startIndex, unsigned endIndex) const {
-        auto sublist = items_->getSubList(startIndex, endIndex);
+        auto sublist = list_->getSubList(startIndex, endIndex);
         auto subsequence = new LinkedListSequence<T>();
         unsigned length = sublist->getLength();
         for (unsigned i = 0; i < length; ++i) {
@@ -107,68 +102,54 @@ namespace my_namespace {
 
     template<class T>
     unsigned LinkedListSequence<T>::getLength() const {
-        return items_->getLength();
+        return list_->getLength();
     }
 
     template<class T>
     LinkedListSequence<T> *LinkedListSequence<T>::append(T item) {
-        items_->append(item);
+        list_->append(item);
         return this;
     }
 
     template<class T>
     LinkedListSequence<T> *LinkedListSequence<T>::prepend(T item) {
-        items_->prepend(item);
+        list_->prepend(item);
         return this;
     }
 
     template<class T>
     LinkedListSequence<T> *LinkedListSequence<T>::insertAt(T item, unsigned index) {
-        items_->insertAt(item, index);
+        list_->insertAt(item, index);
         return this;
     }
 
     template<class T>
-    LinkedListSequence<T> *LinkedListSequence<T>::concat(const ISequence<T> &list) const {
-        auto new_list = this->clone();
-        unsigned start = getLength();
-        unsigned end = start + list.getLength();
-        for (unsigned index = start; index < end; ++index) {
-            new_list->prepend(list.get(index - start));
+    LinkedListSequence<T> *LinkedListSequence<T>::concat(const ISequence<T> &list) {
+        for(int index = 0; index < list.getLength(); index++) {
+            list_->prepend(list.get(index));
+            //TODO: заменить тут на использование reduce()
         }
-        return new_list;
-    }
-
-    template<class T>
-    T &LinkedListSequence<T>::operator[](unsigned index) {
-        return getRef(index);
-    }
-
-    template<class T>
-    T LinkedListSequence<T>::reduce(T (*func)(T, T), T initial) const {
-        return items_->reduce(func, initial);
+        return this;
     }
 
     template<class T>
     T LinkedListSequence<T>::reduce(T (*func)(T, T)) const {
-        if (getLength() <= 0) {
+        if (!getLength()) {
             throw MyError("Reduce to empty sequence");
         }
-        return items_->reduce(func);
+        return list_->reduce(func);
     }
 
     template<class T>
-    LinkedListSequence<T> *LinkedListSequence<T>::map(T (*func)(T)) const {
-        auto new_sequence = new LinkedListSequence<T>();
-        new_sequence->items_ = items_->map(func);
-        return new_sequence;
+    LinkedListSequence<T> *LinkedListSequence<T>::map(T (*func)(T)) {
+        list_->map(func);
+        return this;
     }
 
     template<class T>
-    LinkedListSequence<T> *LinkedListSequence<T>::where(bool (*func)(T)) const {
-        auto new_sequence = new LinkedListSequence<T>();
-        new_sequence->items_ = items_->where(func);
-        return new_sequence;
+    LinkedListSequence<T> *LinkedListSequence<T>::where(bool (*func)(T)) {
+        list_->where(func);
+        return this;
     }
 
     template<class T>
@@ -176,7 +157,7 @@ namespace my_namespace {
         auto* new_sequence = new LinkedListSequence<T>();
         unsigned length = getLength();
         for (unsigned i = 0; i < length; ++i) {
-            new_sequence->items_->prepend(T(get(i)));
+            new_sequence->list_->prepend(T(get(i)));
         }
         return new_sequence;
     }
@@ -188,30 +169,28 @@ namespace my_namespace {
                                   + "; index = " + std::to_string(index);
             throw IndexOutOfRangeError(message, __FILE__, __func__, __LINE__);
         }
-        return items_->getRef(index);
+        return list_->getRef(index);
     }
 
 
 // extra
 
     template<class F, class T>
-    LinkedListSequence<T> *mapL(T (*func)(T), const ISequence<F> *sequence) {
+    LinkedListSequence<T> *mapNewL(const ISequence<F> &sequence, T (*func)(F)) {
         auto new_sequence = new LinkedListSequence<T>();
-        unsigned len = sequence->getLength();
-        for (unsigned i = 0; i < len; ++i) {
-            new_sequence->prepend(func(sequence[i]));
+        unsigned len = sequence.getLength();
+        for (unsigned index = 0; index < len; ++index) {
+            new_sequence->prepend(func(sequence[index]));
         }
         return new_sequence;
     }
 
-    template<class T>
-    LinkedListSequence<T> *whereL(bool (*func)(T), const ISequence<T> *sequence) {
+    template<class F, class T>
+    LinkedListSequence<T> *mapNewL(const ISequence<F> &sequence, T (*func)(F, unsigned)) {
         auto new_sequence = new LinkedListSequence<T>();
-        unsigned len = sequence->getLength();
-        for (unsigned i = 0; i < len; ++i) {
-            if (func(sequence[i])) {
-                new_sequence->prepend(sequence[i]);
-            }
+        unsigned len = sequence.getLength();
+        for (unsigned index = 0; index < len; ++index) {
+            new_sequence->prepend(func(sequence[index], index));
         }
         return new_sequence;
     }

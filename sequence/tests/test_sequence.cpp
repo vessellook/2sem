@@ -151,7 +151,7 @@ int main() {
     ASSERT(check_item_with_function_get(sequence3, 4, 11, task_num));
     print_test_separator();
 
-    ISequence<int>* sequence4 = sequence1->concat(*sequence3);
+    ISequence<int>* sequence4 = sequence1->clone()->concat(*sequence3);
     delete sequence1;
 //    show(sequence4);
     task_num = 13;

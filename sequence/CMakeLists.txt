@@ -13,7 +13,7 @@ add_executable(test_sequence tests/test_sequence.cpp)
 
 add_executable(test_matrix tests/test_matrix.cpp)
 
-add_executable(input_system input_system.cpp ui/fsm.cpp)
+add_executable(input_system input_in_mess.cpp ui/fsm.cpp)
 
 add_executable(modified_input_system .test2.cpp ui/fsm.cpp)
 
