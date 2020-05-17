@@ -242,11 +242,10 @@ int main() {
     if (array6->getSize() < 5) {
         array6->resize(15);
     }
-    for (int i = 0; i < 5; ++i) {
+    for (unsigned i = 0; i < 5; ++i) {
         array6->set(i, new int());
     }
-    for (int i = 0; i < 5; ++i) {
-        *(array6->getRef(i)) = i;
+    for (intunsigned(array6->getRef(i)) = i;
     }
 
     delete array6->getRef(0);

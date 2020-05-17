@@ -27,6 +27,8 @@ namespace my_namespace {
 
         virtual DynamicArray<T> *clone() const;
 
+        virtual DynamicArray<T> *where(bool(*)(T));
+
         virtual T &operator[](unsigned index) { return getRef(index); };
 
         virtual T operator[](unsigned index) const { return get(index); };
@@ -106,7 +108,7 @@ namespace my_namespace {
             c_array_ = new T[new_size];//static_cast<T *>(malloc(sizeof(T) * new_size));
         } else {
             auto other_c_array = new T[new_size];
-            for(int i = 0; i < size_; i++) {
+            for(unsigned i = 0; i < size_; i++) {
                 other_c_array[i] = c_array_[i];
             }
             c_array_ = other_c_array;
@@ -137,5 +139,27 @@ namespace my_namespace {
             new_array->set(i, this->get(i));
         }
         return new_array;
+    }
+
+    template<class T>
+    DynamicArray <T> *DynamicArray<T>::where(bool(*check)(T)) {
+        int new_size = 0;
+        for(unsigned i = 0; i < size_; i++) {
+            if(check(get(i))) {
+                new_size++;
+            }
+        }
+        auto new_c_array = new T[new_size];
+        unsigned count = 0;
+        for(unsigned i = 0; i < size_; i++) {
+            if(check(get(i))) {
+                new_c_array[count] = get(i);
+                count++;
+            }
+        }
+        size_ = new_size;
+        delete[] c_array_;
+        c_array_ = new_c_array;
+        return  this;
     }
 }

@@ -25,13 +25,15 @@ namespace my_namespace {
 
         virtual ISequence<T> *map(T (*func)(T)) = 0;
 
-        virtual ISequence<T> *where(bool (*func)(T)) = 0;
+        virtual T getFirstMatch(bool (*)(T)) const = 0;
+
+        virtual ISequence<T> *where(bool (*)(T)) = 0;
 
         virtual ISequence<T> *concat(const ISequence<T> &list) = 0;
 
         virtual ISequence<T> *getSubsequence(unsigned startIndex, unsigned endIndex) const = 0;
 
-        virtual ISequence<T> *set(unsigned index, T value) { this[0][index] = value; }
+        virtual ISequence<T> *set(unsigned index, T value) = 0;
 
         virtual ISequence<T> *append(T item) = 0;
 
@@ -39,9 +41,9 @@ namespace my_namespace {
 
         virtual ISequence<T> *insertAt(T item, unsigned index) = 0;
 
-        T &operator[](unsigned index) { getRef(index); };
+        virtual T &operator[](unsigned index) = 0;
 
-        T operator[](unsigned index) const { return get(index); }
+        virtual T operator[](unsigned index) const = 0;
     };
 
 // extra

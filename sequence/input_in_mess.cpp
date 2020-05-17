@@ -34,35 +34,35 @@ void initDefaultMatrix(FSM &machine) {
     machine.setEdge(0, 0, is_space, empty);
     machine.setEdge(0, 0, is_comma, empty);
     machine.setEdge(0, 0, is_vertical_line, empty);
-//    machine.setEdge(0, 1, is_space, identity);
+//    machine.setEdge(0, 1, is_space, the_same);
 //    machine.setEdge(1, 1, is_space, empty);
 
     // ID
     machine.setEdge(0, 2, is_letter, lowercase);
     machine.setEdge(2, 2, is_letter, lowercase);
-    machine.setEdge(2, 2, is_digit, identity);
-    machine.setEdge(2, 2, is_underscope, identity);
+    machine.setEdge(2, 2, is_digit, the_same);
+    machine.setEdge(2, 2, is_underscope, the_same);
 
     // NUMBER
-    machine.setEdge(0, 7, is_minus, identity);
-    machine.setEdge(7, 3, is_digit, identity);
-    machine.setEdge(0, 3, is_digit, identity);
-    machine.setEdge(3, 3, is_digit, identity);
-    machine.setEdge(3, 4, is_point, identity);
-    machine.setEdge(4, 5, is_digit, identity);
-    machine.setEdge(5, 5, is_digit, identity);
+    machine.setEdge(0, 7, is_minus, the_same);
+    machine.setEdge(7, 3, is_digit, the_same);
+    machine.setEdge(0, 3, is_digit, the_same);
+    machine.setEdge(3, 3, is_digit, the_same);
+    machine.setEdge(3, 4, is_point, the_same);
+    machine.setEdge(4, 5, is_digit, the_same);
+    machine.setEdge(5, 5, is_digit, the_same);
 
     // SIGN
-    machine.setEdge(0, 6, is_equals_sign, identity);
-    machine.setEdge(0, 6, is_plus, identity);
-//    machine.setEdge(0, 6, is_minus, identity);
-    machine.setEdge(0, 6, is_asterisk, identity);
-    machine.setEdge(0, 6, is_semicolon, identity);
-    machine.setEdge(0, 6, is_slash, identity);
-    machine.setEdge(0, 6, is_apostrophe, identity);
-    machine.setEdge(0, 6, is_round_bracket, identity);
-    machine.setEdge(0, 6, is_rectangle_bracket, identity);
-//    machine.setEdge(0, 6, is_curly_bracket, identity);
+    machine.setEdge(0, 6, is_equals_sign, the_same);
+    machine.setEdge(0, 6, is_plus, the_same);
+//    machine.setEdge(0, 6, is_minus, the_same);
+    machine.setEdge(0, 6, is_asterisk, the_same);
+    machine.setEdge(0, 6, is_semicolon, the_same);
+    machine.setEdge(0, 6, is_slash, the_same);
+    machine.setEdge(0, 6, is_apostrophe, the_same);
+    machine.setEdge(0, 6, is_round_bracket, the_same);
+    machine.setEdge(0, 6, is_rectangle_bracket, the_same);
+//    machine.setEdge(0, 6, is_curly_bracket, the_same);
 }
 
 std::shared_ptr<SinglyLinkedList<std::string>> get_words(const std::string &line) {
@@ -441,7 +441,7 @@ void check_func(const shared_ptr<TreeNode> &root) {
     cout << "]";
 }
 
-shared_ptr<TreeNode> build_tree(const shared_ptr<SinglyLinkedList<Token>> &tokens, int &index) {
+shared_ptr<TreeNode> build_tree(const shared_ptr<SinglyLinkedList<Token>> &tokens, unsigned &index) {
     unsigned length = tokens->getLength();
     Token token;
     shared_ptr<TreeNode> root;
@@ -502,7 +502,7 @@ shared_ptr<TreeNode> build_tree(const shared_ptr<SinglyLinkedList<Token>> &token
 }
 
 shared_ptr<TreeNode> build_tree(const shared_ptr<SinglyLinkedList<Token>> &tokens) {
-    int start_index = 0;
+    unsigned start_index = 0;
     return build_tree(tokens, start_index);
 }
 

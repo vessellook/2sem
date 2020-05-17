@@ -1,6 +1,8 @@
 #pragma once
 
-std::string identity(char chr) { return std::string(1, chr); }
+#include <string>
+
+std::string the_same(char chr) { return std::string(1, chr); }
 
 std::string lowercase(char chr) {
     if ('A' <= chr && chr <= 'Z') chr = chr + 'a' - 'A';

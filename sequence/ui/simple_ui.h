@@ -11,7 +11,22 @@
 namespace simple_ui {
 
     template<class T>
-    void show(const my_namespace::ISequence<T> *list, const std::string &name = "") {
+    void show(const my_namespace::ISequence<T> *sequence, const std::string &name = "") {
+        unsigned length = sequence->getLength();
+        if (name.empty()) {
+            std::cout << "sequence (length " << length << "): ";
+        } else {
+            std::cout << "sequence \"" << name << "\" (length " << length << "): ";
+        }
+
+        for (unsigned i = 0; i < length; ++i) {
+            std::cout << sequence->get(i) << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
+
+    template<class T>
+    void show(const my_namespace::SinglyLinkedList<T> *list, const std::string &name = "") {
         unsigned length = list->getLength();
         if (name.empty()) {
             std::cout << "list (length " << length << "): ";
@@ -21,6 +36,21 @@ namespace simple_ui {
 
         for (unsigned i = 0; i < length; ++i) {
             std::cout << list->get(i) << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
+
+    template<class T>
+    void show(const my_namespace::DynamicArray<T> *array, const std::string &name = "") {
+        unsigned length = array->getSize();
+        if (name.empty()) {
+            std::cout << "array (length " << length << "): ";
+        } else {
+            std::cout << "array \"" << name << "\" (length " << length << "): ";
+        }
+
+        for (unsigned i = 0; i < length; ++i) {
+            std::cout << array->get(i) << " ";
         }
         std::cout << std::endl << std::endl;
     }

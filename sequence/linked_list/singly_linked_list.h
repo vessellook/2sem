@@ -1,5 +1,4 @@
 #pragma once
-
 #include <memory>
 
 #include "../linked_list/singly_linked_node.h"
@@ -30,9 +29,13 @@ namespace my_namespace {
 
         T reduce(T (*)(T, T, unsigned), T) const;
 
+        void execute(void(*)(T));
+
         SinglyLinkedList<T> *map(T (*)(T));
 
         SinglyLinkedList<T> *map(T (*)(T, unsigned));
+
+        T getFirstMatch(bool (*)(T)) const;
 
         SinglyLinkedList<T> *where(bool (*)(T));
 
@@ -47,9 +50,11 @@ namespace my_namespace {
             return this;
         }
 
-        SinglyLinkedList<T>* clone() const;
+        SinglyLinkedList<T> *clone() const;
 
         SinglyLinkedList<T> *cut(unsigned, unsigned);
+
+        SinglyLinkedList<T> *sort(bool ascending = true);
 
         bool isPalindrom();
 
@@ -130,6 +135,16 @@ namespace my_namespace {
     }
 
     template<class T>
+    void SinglyLinkedList<T>::execute(void (*func)(T))
+    {
+        auto node = this->sentinel_;
+        for(unsigned i = 0; i < this->length_; i++) {
+            node = node->getNext();
+            func(node->getData());
+        }
+    }
+
+    template<class T>
     SinglyLinkedList<T> *SinglyLinkedList<T>::map(T (*func)(T)) {
         auto node = this->sentinel_;
         for (unsigned index = 0; index < this->length_; index++) {
@@ -151,18 +166,18 @@ namespace my_namespace {
 
     template<class T>
     SinglyLinkedList<T> *SinglyLinkedList<T>::where(bool (*func)(T)) {
-        if(this->length_ == 0) return this;
+        if (this->length_ == 0) return this;
         unsigned index = 0;
         auto node = this->sentinel_;
-        while(index < this->length_ - 1) {
-            if(!func(node->getNext()->getData())) {
+        while (index < this->length_ - 1) {
+            if (!func(node->getNext()->getData())) {
                 this->skipNext(node);
             } else {
                 node = node->getNext();
                 index++;
             }
         }
-        if(!func(this->tail_->getData())) {
+        if (!func(this->tail_->getData())) {
             this->tail_ = node;
             this->tail_->clearNext();
             this->length_--;
@@ -172,12 +187,12 @@ namespace my_namespace {
 
     template<class T>
     SinglyLinkedList<T> *SinglyLinkedList<T>::where(bool (*func)(T, unsigned)) {
-        if(this->length_ == 0) return this;
+        if (this->length_ == 0) return this;
         unsigned index = 0;
         unsigned prev_index = 0;
         auto node = this->sentinel_;
-        while(index < this->length_ - 1) {
-            if(!func(node->getNext()->getData(), prev_index)) {
+        while (index < this->length_ - 1) {
+            if (!func(node->getNext()->getData(), prev_index)) {
                 this->skipNext(node);
             } else {
                 node = node->getNext();
@@ -185,7 +200,7 @@ namespace my_namespace {
             }
             prev_index++;
         }
-        if(!func(this->tail_->getData(), prev_index)) {
+        if (!func(this->tail_->getData(), prev_index)) {
             this->tail_ = node;
             this->tail_->clearNext();
             this->length_--;
@@ -199,21 +214,18 @@ namespace my_namespace {
             return true;
         }
 
-        std::shared_ptr<SinglyLinkedNode<T>>
-                prevNode = getNode((this->length_ + 1) / 2);
-        std::shared_ptr<SinglyLinkedNode<T>>
-                curNode = prevNode->getNext();
-        std::shared_ptr<SinglyLinkedNode<T>>
-                nextNode;
+        std::shared_ptr<SinglyLinkedNode<T>> prevNode = this->moveForward(this->sentinel_, (this->length_ + 1) / 2);
+        std::shared_ptr<SinglyLinkedNode<T>> curNode = prevNode->getNext();
+        std::shared_ptr<SinglyLinkedNode<T>> nextNode;
         for (unsigned i = 0; i < this->length_ / 2; i++) {
             nextNode = curNode->getNext();
             curNode->setNext(prevNode);
             prevNode = curNode;
             curNode = nextNode;
-        }// в curNode останется хвост, в prevNode останется sentinel_
+        }// в prevNode останется хвост, в curNode останется nullptr
 
         auto forwardNode = this->sentinel_->getNext();
-        auto backwardNode = curNode;
+        auto backwardNode = prevNode;
         bool is_palindrom = true;
         unsigned index = 0;
         while (is_palindrom && index < this->length_ / 2) {
@@ -223,8 +235,9 @@ namespace my_namespace {
             index++;
         }
 
-        // prevNode всё ещё содержит sentinel_
-        // curNode всё ещё содержит хвост
+        // prevNode всё ещё содержит хвост
+        // curNode всё ещё содержит nullptr
+        curNode = prevNode->getNext();
         for (unsigned i = 0; i < this->length_ / 2; i++) {
             nextNode = curNode->getNext();
             curNode->setNext(prevNode);
@@ -240,7 +253,7 @@ namespace my_namespace {
         if (this->length_ < end_index || end_index < start_index) {
             throw IndexOutOfRangeError("length_ < end_index || end_index < start_index", __FILE__, __func__, __LINE__);
         }
-        if(end_index == this->length_ - 1) {
+        if (end_index == this->length_ - 1) {
             this->tail_ = this->moveForward(this->sentinel_, start_index);
             this->tail_->clearNext();
         } else {
@@ -260,6 +273,23 @@ namespace my_namespace {
             node = node->getNext();
         }
         return list;
+    }
+
+    template<class T>
+    SinglyLinkedList<T> *SinglyLinkedList<T>::sort(bool ascending) {
+        return nullptr;
+    }
+
+    template <class T>
+    T SinglyLinkedList<T>::getFirstMatch(bool (*check)(T)) const {
+        auto node = this->sentinel_;
+        for(unsigned i = 0; i < this->length_; i++) {
+            node = node->getNext();
+            if(check(node->getData())) {
+                return node->getData();
+            }
+        }
+        throw std::exception();
     }
 
 }

@@ -79,7 +79,6 @@ namespace my_namespace {
             throw ZeroSizeOfMatrixError("size = " + to_string(size), __FILE__, __func__, __LINE__);
         }
         shared_ptr<ArraySequence<T>> col;
-        T value;
         for (unsigned i = 0; i < size; ++i) {
 
             col = std::make_shared<ArraySequence<T>>();
@@ -220,6 +219,7 @@ namespace my_namespace {
             throw IndexOutOfRangeError("IndexOutOfRangeError", __FILE__, __func__, __LINE__);
         }
         cols_[col_index]->getRef(row_index) = value;
+        return this;
     }
 
     template<class T>

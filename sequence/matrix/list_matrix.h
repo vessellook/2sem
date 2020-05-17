@@ -31,7 +31,7 @@ namespace my_namespace {
 
         ListMatrix<T> *clone() const override;
 
-        ListMatrix<T> *transpose() const override;
+        ListMatrix<T> *transpose() override;
 
         ListMatrix<T> *map(T (*func)(T)) override;
 
@@ -112,15 +112,19 @@ namespace my_namespace {
     }
 
     template<class T>
-    ListMatrix<T> *ListMatrix<T>::transpose() const {
+    ListMatrix<T> *ListMatrix<T>::transpose() {
         unsigned len = this->getSize();
-        auto new_matrix = new ListMatrix<T>(len);
+        auto new_cols = *(cols_.clone());
+        for(unsigned i = 0; i < len; i++) {
+            new_cols[i] = shared_ptr<LinkedListSequence<T>>(cols_[i]->clone());
+        }
         for (unsigned i = 0; i < len; ++i) {
             for (unsigned j = 0; j < len; ++j) {
-                new_matrix->set(i, j, this->get(j, i));
+                new_cols[i]->set(j, this->get(j, i));
             }
         }
-        return new_matrix;
+        cols_ = new_cols;
+        return this;
     }
 
     template<class T>

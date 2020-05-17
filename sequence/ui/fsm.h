@@ -9,7 +9,7 @@
 class FSM {
     //этот класс я буду использовать для разбора входящих символов в строки
 public:
-    static const unsigned start_state;
+    static constexpr unsigned start_state = 0;
 public:
     struct Edge {
         unsigned from;
@@ -30,7 +30,7 @@ public:
     };
 
 private:
-    my_namespace::ArraySequence<Edge> matrix_;
+    my_namespace::ArraySequence<Edge> edges_;
     std::shared_ptr<std::string> buffer_;
     std::string word_;
     unsigned state_;

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <memory>
 
 namespace my_namespace {
@@ -7,7 +6,7 @@ namespace my_namespace {
     class SinglyLinkedNode {
     private:
         T data_;
-        std::shared_ptr<SinglyLinkedNode> next_;
+        std::shared_ptr<SinglyLinkedNode<T>> next_;
     public:
         SinglyLinkedNode(T data, std::shared_ptr<SinglyLinkedNode> next): data_(data), next_(next) { }
 

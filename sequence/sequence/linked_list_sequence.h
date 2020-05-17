@@ -24,9 +24,13 @@ namespace my_namespace {
 
         T getLast() const override;
 
+		LinkedListSequence<T> *set(unsigned index, T value) override { getRef(index) = value; return this; }
+
         T get(unsigned) const override;
 
         T& getRef(unsigned) override;
+
+        T getFirstMatch(bool(*check)(T)) const { return this->list_->getFirstMatch(check); }
 
         T reduce(T (*func)(T, T)) const override;
 
@@ -34,9 +38,9 @@ namespace my_namespace {
 
         LinkedListSequence<T> *clone() const override;
 
-        LinkedListSequence<T> *map(T (*)(T)) override;
+        LinkedListSequence<T> *map(T (*func)(T)) override;
 
-        LinkedListSequence<T> *where(bool (*)(T)) override;
+        LinkedListSequence<T> *where(bool (*check)(T)) override;
 
         LinkedListSequence<T> *concat(const ISequence<T> &) override;
 
@@ -47,6 +51,10 @@ namespace my_namespace {
         LinkedListSequence<T> *prepend(T) override;
 
         LinkedListSequence<T> *insertAt(T, unsigned) override;
+
+        T &operator[](unsigned index) override { return getRef(index); };
+
+        T operator[](unsigned index) const override { return get(index); }
     };
 
     template<class T>
@@ -125,7 +133,7 @@ namespace my_namespace {
 
     template<class T>
     LinkedListSequence<T> *LinkedListSequence<T>::concat(const ISequence<T> &list) {
-        for(int index = 0; index < list.getLength(); index++) {
+        for(unsigned index = 0; index < list.getLength(); index++) {
             list_->prepend(list.get(index));
             //TODO: заменить тут на использование reduce()
         }

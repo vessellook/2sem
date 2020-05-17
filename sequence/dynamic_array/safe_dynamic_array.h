@@ -106,7 +106,7 @@ namespace my_namespace {
             }
         } else {
             auto other_c_array = new Optional<T>[new_size];
-            for(int i = 0; i < size_; i++) {
+            for(unsigned i = 0; i < size_; i++) {
                 if(c_array_[i].hasValue()) {
                     other_c_array[i].setValue(c_array[i].getValue());
                 }

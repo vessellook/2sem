@@ -13,7 +13,7 @@ public:
     std::string getType() { return type_; }
 };
 
-int priority(Token token) {
+unsigned priority(Token token) {
     std::string word = token.getWord();
     if(word == "*" || word == "/") {
         return 4;

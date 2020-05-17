@@ -6,16 +6,14 @@
 
 using namespace std;
 
-const unsigned FSM::start_state = 0;
-
-FSM::FSM(shared_ptr<std::string> buffer) : matrix_(), is_halt_(false), state_(start_state), buffer_(std::move(buffer)) {
+FSM::FSM(shared_ptr<std::string> buffer) : edges_(), is_halt_(false), state_(start_state), buffer_(std::move(buffer)) {
     word_.clear();
 }
 
 bool FSM::input(char chr) {
     if(is_halt_) return false;
-    for(unsigned i = 0; i < matrix_.getLength(); ++i) {
-        Edge edge = matrix_[i];
+    for(unsigned i = 0; i < edges_.getLength(); ++i) {
+        Edge edge = edges_[i];
         if(edge.from == state_) {
             if(edge.check(chr)) {
                 word_ += edge.convert(chr);
@@ -47,11 +45,11 @@ string FSM::restart() {
 }
 
 void FSM::setEdge(unsigned from, unsigned to, bool(*check)(char), string(*convert)(char)) {
-    matrix_.prepend(Edge(from, to, check, convert));
+    edges_.prepend(Edge(from, to, check, convert));
 }
 
 void FSM::setEdge(Edge edge) {
-    matrix_.prepend(edge);
+    edges_.prepend(edge);
 }
 
 unsigned FSM::getState() { return state_; }

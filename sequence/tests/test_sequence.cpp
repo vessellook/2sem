@@ -3,11 +3,11 @@
 #include "macro_and_functions_for_tests.h"
 #include "../common/my_functions.h"
 
-//#include "../sequence/array_sequence.h"
-//#define TestSequence ArraySequence
+#include "../sequence/array_sequence.h"
+#define TestSequence ArraySequence
 
-#include "../sequence/linked_list_sequence.h"
-#define TestSequence LinkedListSequence
+//#include "../sequence/linked_list_sequence.h"
+//#define TestSequence LinkedListSequence
 
 using namespace std;
 using namespace my_namespace;

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include "../common/exceptions.h"
 #include "sequence.h"
@@ -38,7 +39,9 @@ namespace my_namespace {
 
         ArraySequence<T> *map(T (*func)(T)) override;
 
-        ArraySequence<T> *where(bool (*func)(T)) override;
+        T getFirstMatch(bool (*check)(T)) const override;
+
+        ArraySequence<T> *where(bool (*check)(T)) override;
 
         ArraySequence<T> *concat(const ISequence<T> &sequence) override;
 
@@ -53,6 +56,10 @@ namespace my_namespace {
         ArraySequence<T> *prepend(T item) override;
 
         ArraySequence<T> *insertAt(T item, unsigned index) override;
+
+        T &operator[](unsigned index) override { return getRef(index); }
+
+        T operator[](unsigned index) const override { return get(index); }
     };
 
     template<class T>
@@ -187,13 +194,13 @@ namespace my_namespace {
 
     template<class T>
     ArraySequence<T> *ArraySequence<T>::where(bool (*func)(T)) {
-        auto array = std::make_shared<DynamicArray<T>>(length_);
+        auto array = DynamicArray<T>(length_);
         unsigned len = length_;
         for (unsigned i = 0; i < len; ++i) {
-            if (func(get(i))) array->set(i, get(i));
+            if (func(get(i))) array.set(i, get(i));
             else length_--;
         }
-        array_ = std::shared_ptr<DynamicArray<T>>(array->resize(length_));
+        array_ = std::shared_ptr<DynamicArray<T>>(array.clone()->resize(length_));
         return this;
     }
 
@@ -229,6 +236,16 @@ namespace my_namespace {
         }
         return new_sequence;
     }
+
+	template <class T>
+	T ArraySequence<T>::getFirstMatch(bool(*check)(T)) const {
+		for (unsigned i = 0; i < this->length_; i++) {
+			if (check(array_->get(i))) {
+				return array_->get(i);
+			}
+		}
+		throw std::exception();
+	}
 
     template<class T>
     T &ArraySequence<T>::getRef(unsigned index) {
