@@ -5,22 +5,27 @@
 #include <vector>
 #include <list>
 
-struct Comb {
-    std::vector<int> comb;
-    char type{};
-};
-
 class Tree {
 public:
     explicit Tree(int dim);
 
 private:
+    // comb ~ combination
+    struct Comb {
+        std::vector<int> comb;
+        char type{};
+    };
+
     struct CombNode {
         Comb comb;
         std::vector<CombNode *> children;
 
         explicit CombNode(std::vector<int> comb) {
             this->comb.comb = std::move(comb);
+            /* 'W' ~ if player makes the move to this comb he can win
+             * 'D' ~ if player makes the move to this comb he only can make draw
+             * 'F' ~ if player makes the move to this comb he definitely fail
+             */
             this->comb.type = 'W';
         }
     };

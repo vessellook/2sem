@@ -5,15 +5,15 @@ using namespace std;
 
 Game::Game(int dim) : Tree(dim), cursor(this) {}
 
-Game::Game(int dim, const vector<int> &v) : Tree(dim),
-                                                 cursor(this, v) {}
+Game::Game(int dim, const vector<int> &comb) : Tree(dim),
+                                               cursor(this, comb) {}
 
 void Game::restart() {
     cursor = Tree::Cursor(this);
 }
 
-void Game::restart(const vector<int> &v) {
-    cursor = Tree::Cursor(this, v);
+void Game::restart(const vector<int> &comb) {
+    cursor = Tree::Cursor(this, comb);
 }
 
 void Game::changeCombination(const vector<int> &comb) {

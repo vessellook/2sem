@@ -147,8 +147,6 @@ void Tree::setParents() {
             // if child is leaf, it should be marked 'W'(Win) or 'D'(Draw)
             if (isLeaf(child)) {
                 markLeaf(child);
-                print(child);
-                cout << " " << child->comb.type << endl;
             }
             for (CombNode *parent : nodes[level - 1]) {
                 if (isParentAndChild(parent, child) &&
