@@ -18,8 +18,16 @@ void Game::restart(const vector<int> &v) {
 
 void Game::changeCombination(const vector<int> &comb) {
     if(isValid(comb)) {
-        cursor.MoveToChild(comb);
+        cursor.moveToChild(comb);
     } else {
         throw exception();
     }
+}
+
+void Game::makeBestChoice(int &row, int &col, int &sign) {
+    cursor.makeBestChoice(row, col, sign);
+}
+
+bool Game::isOver() {
+    return cursor.isGameOver();
 }

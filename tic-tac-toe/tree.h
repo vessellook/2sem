@@ -21,6 +21,7 @@ private:
 
         explicit CombNode(std::vector<int> comb) {
             this->comb.comb = std::move(comb);
+            this->comb.type = 'W';
         }
     };
 
@@ -35,11 +36,15 @@ protected:
 
         Cursor(Tree *master, const std::vector<int> &comb);
 
-        void MoveToChild(const std::vector<int> &comb);
+        void moveToChild(const std::vector<int> &comb);
+
+        void makeBestChoice(int &row, int &col, int &sign);
+
+        bool isGameOver();
 
     private:
         Tree *master;
-        CombNode *node;
+        CombNode *current_node;
     };
 
 private:

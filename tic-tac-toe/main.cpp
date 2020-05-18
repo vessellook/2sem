@@ -28,6 +28,7 @@ int main() {
     while(a) {
         print(comb);
         vector<int> new_comb = comb;
+        cout << ">>";
         cin >> row >> col >> sign;
         new_comb[row*dim + col] = sign;
         try {
@@ -35,6 +36,14 @@ int main() {
         } catch (exception e) {
             cout << "error!\n";
             continue;
+        }
+        print(new_comb);
+        if(game.isOver()) {
+            cout << "game over!\n";
+        } else {
+            game.makeBestChoice(row, col, sign);
+            new_comb[row*dim + col] = sign;
+            cout << "<<" << row << " " << col << " " << sign << endl;
         }
         comb = move(new_comb);
     }

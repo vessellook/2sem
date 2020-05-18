@@ -15,6 +15,10 @@ public:
 
     void changeCombination(const std::vector<int> &comb);
 
+    void makeBestChoice(int &row, int &col, int &sign);
+
+    bool isOver();
+
 private:
     Tree::Cursor cursor;
 

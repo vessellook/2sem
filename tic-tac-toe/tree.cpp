@@ -133,10 +133,12 @@ void Tree::markLeaf(Tree::CombNode *node) {
 }
 
 char parentType(char parent_type, char child_type) {
-    if (child_type == 'F') return 'W';
-    if (child_type == 'W') return parent_type;
-    if (parent_type == 'W') return 'W';
-    return 'D';
+    char result;
+    if (child_type == 'W') result = 'F';
+    else if (child_type == 'F') result = parent_type;
+    else if (parent_type == 'F') result = 'F';
+    else result = 'D';
+    return result;
 }
 
 void Tree::setParents() {
@@ -145,6 +147,8 @@ void Tree::setParents() {
             // if child is leaf, it should be marked 'W'(Win) or 'D'(Draw)
             if (isLeaf(child)) {
                 markLeaf(child);
+                print(child);
+                cout << " " << child->comb.type << endl;
             }
             for (CombNode *parent : nodes[level - 1]) {
                 if (isParentAndChild(parent, child) &&
@@ -187,30 +191,67 @@ bool Tree::isValid(const comb_vector &comb) {
 }
 
 Tree::Cursor::Cursor(Tree *master) : master(master) {
-    node = master->root;
+    current_node = master->root;
 }
 
 Tree::Cursor::Cursor(Tree *master, const comb_vector &comb) : master(
         master) {
-    this->node = master->root;
-    while (this->node->comb.comb != comb) {
-        if (this->node->children.empty()) throw exception();
-        for (CombNode *candidate : node->children) {
+    current_node = master->root;
+    while (current_node->comb.comb != comb) {
+        if (current_node->children.empty()) throw exception();
+        for (CombNode *candidate : current_node->children) {
             if (master->isAncestorAndChild(candidate, comb)) {
-                this->node = candidate;
+                current_node = candidate;
                 break;
             }
         }
     }
 }
 
-void Tree::Cursor::MoveToChild(const comb_vector &comb) {
-    if (!master->isParentAndChild(node, comb)) throw exception();
-    for (CombNode *child : node->children) {
+void Tree::Cursor::moveToChild(const comb_vector &comb) {
+    if (!master->isParentAndChild(current_node, comb)) throw exception();
+    for (CombNode *child : current_node->children) {
         if (child->comb.comb == comb) {
-            node = child;
+            current_node = child;
             return;
         }
     }
     throw exception();
+}
+
+void Tree::Cursor::makeBestChoice(int &row, int &col, int &sign) {
+    char type = current_node->comb.type;
+    switch(type) {
+        case 'W':
+            type = 'F';
+            break;
+        case 'F':
+            type = 'W';
+            break;
+        default:
+            type = 'D';
+            break;
+    }
+    int k;
+    for(CombNode *child : current_node->children) {
+        if(child->comb.type == type) {
+            for(int i = 0; i < master->dim; i++) {
+                for(int j = 0; j < master->dim; j++) {
+                    k = i*master->dim + j;
+                    if(child->comb.comb[k] - current_node->comb.comb[k] != 0) {
+                        row = i;
+                        col = j;
+                        sign = child->comb.comb[k];
+                        current_node = child;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    throw exception();
+}
+
+bool Tree::Cursor::isGameOver() {
+    return isLeaf(current_node);
 }
